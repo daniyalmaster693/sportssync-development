@@ -115,6 +115,10 @@ export default function scoresAndSchedule() {
               title="View Article on ESPN"
               url={`${mlbArticle?.links?.web?.href ?? "https://www.espn.com"}`}
             />
+            <Action.CopyToClipboard
+              title="Copy Article Link"
+              content={mlbArticle?.links?.web?.href}
+            ></Action.CopyToClipboard>
             <Action
               title="Refresh"
               icon={Icon.ArrowClockwise}
