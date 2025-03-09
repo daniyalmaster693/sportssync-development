@@ -224,7 +224,7 @@ export default function scoresAndSchedule() {
 
                   <List.Item.Detail.Metadata.Separator />
 
-                  <List.Item.Detail.Metadata.Label title="Game State" text={`${gameTime}`} />
+                  <List.Item.Detail.Metadata.Label title="Game Time" text={`${gameTime}`} />
 
                   <List.Item.Detail.Metadata.Label
                     title="Tickets"
