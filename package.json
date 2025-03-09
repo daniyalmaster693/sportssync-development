@@ -130,6 +130,13 @@
       "title": "NHL Player Stats",
       "description": "View player stats across the NHL",
       "mode": "view"
+    },
+    {
+      "name": "live-scores",
+      "title": "Live Scores",
+      "description": "View live scores across all supported league directly from your menubar",
+      "mode": "menu-bar",
+      "interval": "15s"
     }
   ],
   "dependencies": {
