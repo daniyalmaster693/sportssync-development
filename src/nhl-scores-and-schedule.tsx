@@ -1,14 +1,18 @@
-import { Detail, List, Color, Icon, Action, ActionPanel, OpenAction } from "@raycast/api";
+import { Detail, List, Color, Icon, Action, ActionPanel } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
+import { useState } from "react";
 import getPastAndFutureDays from "./utils/getDateRange";
 
 interface Competitor {
   team: {
     abbreviation: string;
+    displayName: string;
     logo: string;
     links: { href: string }[];
   };
   score: string;
+  records?: { summary: string }[];
+  probables?: { athlete: { displayName: string; headshot: string } }[];
 }
 
 interface Status {
@@ -23,6 +27,24 @@ interface Status {
 interface Competition {
   competitors: Competitor[];
   type: { id: number };
+  venue: {
+    fullName: string;
+    indoor: boolean;
+    address: {
+      city: string;
+      state: string;
+      country: string;
+    };
+  };
+  tickets: [
+    {
+      summary: string;
+    },
+  ];
+  season: {
+    year: string;
+    slug: string;
+  };
 }
 
 interface Game {
@@ -33,6 +55,11 @@ interface Game {
   status: Status;
   competitions: Competition[];
   links: { href: string }[];
+  season: {
+    year: string;
+    slug: string;
+  };
+  displayName: string;
 }
 
 interface DayItems {
@@ -55,6 +82,8 @@ export default function scoresAndSchedule() {
     data: nhlScoresAndSchedule,
     revalidate,
   } = useFetch<Response>(`https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard?dates=${dateRange}`);
+
+  const [showDetail, setShowDetail] = useState(false);
 
   const nhlDayItems: DayItems[] = [];
   const nhlGames = nhlScoresAndSchedule?.events || [];
@@ -114,20 +143,111 @@ export default function scoresAndSchedule() {
       accessoryColor = Color.Orange;
     }
 
+    let season = nhlGame.season.year;
+    let seasonType = nhlGame.season.slug;
+
+    function toTitleCase(str: string): string {
+      return str
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(" ");
+    }
+
+    let formattedSeason = toTitleCase(season.toString());
+    let formattedSeasonType = toTitleCase(seasonType.replace(/-/g, " "));
+
+    let venueCity = nhlGame?.competitions[0]?.venue?.address?.city ?? "Unknown";
+    let venueState = nhlGame?.competitions[0]?.venue?.address?.state ?? "Unknown";
+    let venueCountry = nhlGame?.competitions[0]?.venue?.address?.country ?? "Unknown";
+    let venueAddress = `${venueCity}, ${venueState}, ${venueCountry}`;
+
     nhlDay?.games.push(
       <List.Item
         key={index}
         title={nhlGame?.name?.replace(" at ", " vs ")}
         icon={{ source: nhlGame?.competitions[0]?.competitors[1]?.team?.logo }}
-        accessories={[
-          {
-            text: { value: `${accessoryTitle ?? "No Date Found"}`, color: accessoryColor },
-            tooltip: accessoryToolTip ?? "Unknown",
-          },
-          { icon: accessoryIcon },
-        ]}
+        accessories={
+          !showDetail
+            ? [
+                {
+                  text: { value: `${accessoryTitle ?? "No Date Found"}`, color: accessoryColor },
+                  tooltip: accessoryToolTip ?? "Unknown",
+                },
+                { icon: accessoryIcon },
+              ]
+            : []
+        }
+        detail={
+          showDetail ? (
+            <List.Item.Detail
+              metadata={
+                <List.Item.Detail.Metadata>
+                  <List.Item.Detail.Metadata.TagList
+                    title={`${nhlGame?.competitions?.[0]?.competitors?.[1]?.team.displayName} (${nhlGame?.competitions?.[0]?.competitors?.[1]?.team?.abbreviation})`}
+                  >
+                    <List.Item.Detail.Metadata.TagList.Item
+                      text={nhlGame?.competitions?.[0]?.competitors?.[1]?.records?.[0]?.summary}
+                      icon={nhlGame?.competitions?.[0]?.competitors?.[1]?.team?.logo}
+                      color={Color.Yellow}
+                    />
+                  </List.Item.Detail.Metadata.TagList>
+
+                  <List.Item.Detail.Metadata.TagList
+                    title={`${nhlGame?.competitions?.[0]?.competitors?.[0]?.team.displayName} (${nhlGame?.competitions?.[0]?.competitors?.[0]?.team?.abbreviation})`}
+                  >
+                    <List.Item.Detail.Metadata.TagList.Item
+                      icon={nhlGame?.competitions?.[0]?.competitors?.[0]?.team?.logo}
+                      text={nhlGame?.competitions?.[0]?.competitors?.[0]?.records?.[0]?.summary}
+                      color={Color.Yellow}
+                    />
+                  </List.Item.Detail.Metadata.TagList>
+
+                  <List.Item.Detail.Metadata.Separator />
+
+                  <List.Item.Detail.Metadata.Label
+                    title={`${nhlGame?.competitions?.[0]?.competitors?.[1]?.team?.abbreviation} Starting Goalie`}
+                    text={`${nhlGame?.competitions?.[0]?.competitors?.[1]?.probables?.[0]?.athlete?.displayName}`}
+                    icon={nhlGame?.competitions?.[0]?.competitors?.[1]?.probables?.[0]?.athlete?.headshot}
+                  />
+                  <List.Item.Detail.Metadata.Label
+                    title={`${nhlGame?.competitions?.[0]?.competitors?.[0]?.team?.abbreviation} Starting Goalie`}
+                    text={`${nhlGame?.competitions?.[0]?.competitors?.[0]?.probables?.[0]?.athlete?.displayName}`}
+                    icon={nhlGame?.competitions?.[0]?.competitors?.[0]?.probables?.[0]?.athlete?.headshot}
+                  />
+
+                  <List.Item.Detail.Metadata.Separator />
+
+                  <List.Item.Detail.Metadata.Label title="Season" text={formattedSeason} />
+                  <List.Item.Detail.Metadata.TagList title="Season type">
+                    <List.Item.Detail.Metadata.TagList.Item text={formattedSeasonType} color={Color.Green} />
+                  </List.Item.Detail.Metadata.TagList>
+
+                  <List.Item.Detail.Metadata.Separator />
+
+                  <List.Item.Detail.Metadata.Label title="Game State" text={`${gameTime}`} />
+
+                  <List.Item.Detail.Metadata.Label
+                    title="Tickets"
+                    text={`${nhlGame?.competitions[0]?.tickets?.[0]?.summary.toString()}`}
+                  />
+
+                  <List.Item.Detail.Metadata.Label title="Venue" text={nhlGame.competitions[0].venue.fullName} />
+                  <List.Item.Detail.Metadata.Label title="Address" text={`${venueAddress}`} />
+
+                  <List.Item.Detail.Metadata.TagList title="Indoor Venue">
+                    <List.Item.Detail.Metadata.TagList.Item
+                      text={toTitleCase(nhlGame.competitions[0].venue.indoor.toString())}
+                      color={Color.Green}
+                    />
+                  </List.Item.Detail.Metadata.TagList>
+                </List.Item.Detail.Metadata>
+              }
+            />
+          ) : null
+        }
         actions={
           <ActionPanel>
+            <Action title="Toggle Detailed View" icon={Icon.Sidebar} onAction={() => setShowDetail(!showDetail)} />
             <Action
               title="Refresh"
               icon={Icon.ArrowClockwise}
@@ -171,7 +291,11 @@ export default function scoresAndSchedule() {
   });
 
   return (
-    <List searchBarPlaceholder="Search for your favorite team" isLoading={nhlScheduleStats}>
+    <List
+      isShowingDetail={showDetail}
+      searchBarPlaceholder="Search for your favorite team"
+      isLoading={nhlScheduleStats}
+    >
       {nhlDayItems?.map((nhlDay, index) => (
         <List.Section
           key={index}
