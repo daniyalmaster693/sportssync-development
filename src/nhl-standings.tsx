@@ -63,7 +63,7 @@ interface StandingsData {
 }
 
 export default function command() {
-  const { isLoading, data } = useFetch<StandingsData>(
+  const { isLoading, data, revalidate } = useFetch<StandingsData>(
     "https://site.web.api.espn.com/apis/v2/sports/hockey/nhl/standings?type=0&level=3&sort=playoffseed:asc,points:desc,gamesplayed:asc",
   );
 
@@ -124,6 +124,12 @@ export default function command() {
               title="View Team Details on ESPN"
               url={`${team1?.team?.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={revalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -174,6 +180,12 @@ export default function command() {
               title="View Team Details on ESPN"
               url={`${team2?.team?.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={revalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -224,6 +236,12 @@ export default function command() {
               title="View Team Details on ESPN"
               url={`${team3?.team?.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={revalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -274,6 +292,12 @@ export default function command() {
               title="View Team Details on ESPN"
               url={`${team4?.team?.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={revalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />

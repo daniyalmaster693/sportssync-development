@@ -1,4 +1,4 @@
-import { Detail, List, Color, Icon, Action, ActionPanel } from "@raycast/api";
+import { Detail, List, Color, Icon, Action, ActionPanel, OpenAction } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import getPastAndFutureDays from "./utils/getDateRange";
 
@@ -50,9 +50,11 @@ export default function scoresAndSchedule() {
 
   const dateRange = getPastAndFutureDays(new Date());
 
-  const { isLoading: nhlScheduleStats, data: nhlScoresAndSchedule } = useFetch<Response>(
-    `https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard?dates=${dateRange}`,
-  );
+  const {
+    isLoading: nhlScheduleStats,
+    data: nhlScoresAndSchedule,
+    revalidate,
+  } = useFetch<Response>(`https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard?dates=${dateRange}`);
 
   const nhlDayItems: DayItems[] = [];
   const nhlGames = nhlScoresAndSchedule?.events || [];
@@ -126,6 +128,12 @@ export default function scoresAndSchedule() {
         ]}
         actions={
           <ActionPanel>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={revalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser
               title="View Game Details on ESPN"
               url={`${nhlGame?.links[0]?.href ?? "https://www.espn.com"}`}

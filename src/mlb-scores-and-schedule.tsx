@@ -47,7 +47,7 @@ export default function command() {
 
   const dateRange = getPastAndFutureDays(new Date());
 
-  const { isLoading, data } = useFetch<Response>(
+  const { isLoading, data, revalidate } = useFetch<Response>(
     `https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateRange}`,
   );
 
@@ -119,6 +119,12 @@ export default function command() {
         ]}
         actions={
           <ActionPanel>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={revalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Game Details on ESPN" url={`${game.links[0].href}`} />
             {game.competitions[0].competitors[1].team.links?.length > 0 && (
               <Action.OpenInBrowser

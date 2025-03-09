@@ -14,11 +14,13 @@ interface ArticlesResponse {
 }
 
 export default function scoresAndSchedule() {
-  // Fetch F! Articles
+  // Fetch F1 Articles
 
-  const { isLoading: f1ArticlesStatus, data: f1ArticlesData } = useFetch<ArticlesResponse>(
-    "https://site.api.espn.com/apis/site/v2/sports/racing/f1/news",
-  );
+  const {
+    isLoading: f1ArticlesStatus,
+    data: f1ArticlesData,
+    revalidate,
+  } = useFetch<ArticlesResponse>("https://site.api.espn.com/apis/site/v2/sports/racing/f1/news");
 
   const f1Articles = f1ArticlesData?.articles || [];
   const f1Items = f1Articles?.map((f1Article, index) => {
@@ -52,6 +54,12 @@ export default function scoresAndSchedule() {
               title="View Article on ESPN"
               url={`${f1Article?.links?.web?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={revalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />

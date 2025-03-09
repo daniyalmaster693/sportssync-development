@@ -41,9 +41,11 @@ interface StandingsData {
 }
 
 export default function scoresAndSchedule() {
-  const { isLoading: mlbStandingsStats, data: mlbStandingsData } = useFetch<StandingsData>(
-    "https://site.web.api.espn.com/apis/v2/sports/baseball/mlb/standings",
-  );
+  const {
+    isLoading: mlbStandingsStats,
+    data: mlbStandingsData,
+    revalidate,
+  } = useFetch<StandingsData>("https://site.web.api.espn.com/apis/v2/sports/baseball/mlb/standings");
 
   if (mlbStandingsStats) {
     return <Detail isLoading={true} />;
@@ -154,6 +156,12 @@ export default function scoresAndSchedule() {
               title="View Team Details on ESPN"
               url={`${team2?.team?.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={revalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />

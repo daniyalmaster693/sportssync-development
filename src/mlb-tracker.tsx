@@ -1,6 +1,6 @@
-import { Detail, List, Action, ActionPanel, Color, Icon } from "@raycast/api";
+import { Detail, List, Action, ActionPanel, Color, Icon, LocalStorage } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Article {
   headline: string;
@@ -61,11 +61,27 @@ interface Response {
 export default function scoresAndSchedule() {
   // Fetch MLB Articles
 
-  const [currentInfo, displaySelectInfo] = useState("Articles");
+  const [currentInfo, setCurrentInfo] = useState<string>("Articles");
 
-  const { isLoading: mlbArticlesStatus, data: mlbArticlesData } = useFetch<ArticlesResponse>(
-    "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/news",
-  );
+  useEffect(() => {
+    async function loadStoredDropdown() {
+      const storedValue = await LocalStorage.getItem("selectedDropdown");
+
+      if (typeof storedValue === "string") {
+        setCurrentInfo(storedValue);
+      } else {
+        setCurrentInfo("Articles");
+      }
+    }
+
+    loadStoredDropdown();
+  }, []);
+
+  const {
+    isLoading: mlbArticlesStatus,
+    data: mlbArticlesData,
+    revalidate: articleRevalidate,
+  } = useFetch<ArticlesResponse>("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/news");
 
   const mlbArticles = mlbArticlesData?.articles || [];
   const mlbArticleItems = mlbArticles?.map((mlbArticle, index) => {
@@ -99,6 +115,12 @@ export default function scoresAndSchedule() {
               title="View Article on ESPN"
               url={`${mlbArticle?.links?.web?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={articleRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -107,9 +129,11 @@ export default function scoresAndSchedule() {
 
   // Fetch MLB Injuries
 
-  const { isLoading: mlbInjuryStatus, data: mlbInjuryData } = useFetch<Response>(
-    "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/injuries",
-  );
+  const {
+    isLoading: mlbInjuryStatus,
+    data: mlbInjuryData,
+    revalidate: injuryRevalidate,
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/injuries");
 
   const mlbInjuryItems = mlbInjuryData?.injuries.flatMap((injuryItem) => injuryItem.injuries) || [];
   const mlbItems = mlbInjuryItems?.map((mlbInjury, index) => {
@@ -166,6 +190,12 @@ export default function scoresAndSchedule() {
               title="View Player Details on ESPN"
               url={`${mlbInjury.athlete.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={injuryRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -174,9 +204,11 @@ export default function scoresAndSchedule() {
 
   // Fetch MLB Transactions
 
-  const { isLoading: mlbTransactionStatus, data: mlbTransactionsData } = useFetch<Response>(
-    "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/transactions?limit=50",
-  );
+  const {
+    isLoading: mlbTransactionStatus,
+    data: mlbTransactionsData,
+    revalidate: transactionRevalidate,
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/transactions?limit=50");
 
   const mlbTransactionDayItems: DayItems[] = [];
   const mlbTransactions = mlbTransactionsData?.transactions || [];
@@ -209,6 +241,12 @@ export default function scoresAndSchedule() {
               title="View Team Details on ESPN"
               url={`${mlbTransaction?.team.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={transactionRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />,
@@ -222,7 +260,15 @@ export default function scoresAndSchedule() {
     <List
       searchBarPlaceholder="Search news, injuries, transactions"
       searchBarAccessory={
-        <List.Dropdown tooltip="Sort by" onChange={displaySelectInfo} defaultValue="Articles">
+        <List.Dropdown
+          tooltip="Sort by"
+          onChange={async (newValue) => {
+            setCurrentInfo(newValue);
+            await LocalStorage.setItem("selectedDropdown", newValue);
+          }}
+          value={currentInfo}
+          defaultValue="Articles"
+        >
           <List.Dropdown.Item title="Articles" value="Articles" />
           <List.Dropdown.Item title="Injuries" value="Injuries" />
           <List.Dropdown.Item title="Transactions" value="Transactions" />

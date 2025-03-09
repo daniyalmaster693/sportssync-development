@@ -1,6 +1,6 @@
-import { Detail, List, Icon, Color } from "@raycast/api";
+import { Detail, List, Action, ActionPanel, Color, Icon, LocalStorage } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Stats {
   displayValue: string;
@@ -43,9 +43,25 @@ export default function scoresAndSchedule() {
   // Fetch Driver Standings
 
   const [currentLeague, displaySelectStandingsType] = useState("Driver Standings");
-  const { isLoading: driverStats, data: driverData } = useFetch<StandingsData>(
-    "https://site.api.espn.com/apis/v2/sports/racing/f1/standings",
-  );
+  useEffect(() => {
+    async function loadStoredDropdown() {
+      const storedValue = await LocalStorage.getItem("selectedDropdown");
+
+      if (typeof storedValue === "string") {
+        displaySelectStandingsType(storedValue);
+      } else {
+        displaySelectStandingsType("Driver Standings");
+      }
+    }
+
+    loadStoredDropdown();
+  }, []);
+
+  const {
+    isLoading: driverStats,
+    data: driverData,
+    revalidate: driverRevalidate,
+  } = useFetch<StandingsData>("https://site.api.espn.com/apis/v2/sports/racing/f1/standings");
 
   const driverItems = driverData?.children?.[0]?.standings?.entries || [];
   const drivers = driverItems?.map((driver, index) => {
@@ -77,15 +93,27 @@ export default function scoresAndSchedule() {
           },
           { tag: { value: driver?.stats[0]?.displayValue ?? "0", color: tagColor }, icon: tagIcon },
         ]}
+        actions={
+          <ActionPanel>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={driverRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
+          </ActionPanel>
+        }
       />
     );
   });
 
   // Fetch Constructor Standings
 
-  const { isLoading: constructorStats, data: constructorData } = useFetch<StandingsData>(
-    "https://site.api.espn.com/apis/v2/sports/racing/f1/standings",
-  );
+  const {
+    isLoading: constructorStats,
+    data: constructorData,
+    revalidate: constructorRevalidate,
+  } = useFetch<StandingsData>("https://site.api.espn.com/apis/v2/sports/racing/f1/standings");
 
   const constructorItems = constructorData?.children?.[1]?.standings?.entries || [];
   const constructorTeams = constructorItems?.map((constructor, index) => {
@@ -114,6 +142,16 @@ export default function scoresAndSchedule() {
           },
           { tag: { value: constructor?.stats[0]?.displayValue ?? "0", color: tagColor }, icon: tagIcon },
         ]}
+        actions={
+          <ActionPanel>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={constructorRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
+          </ActionPanel>
+        }
       />
     );
   });
@@ -133,7 +171,15 @@ export default function scoresAndSchedule() {
     <List
       searchBarPlaceholder="Search for your favorite team"
       searchBarAccessory={
-        <List.Dropdown tooltip="Sort by" onChange={displaySelectStandingsType} defaultValue="Driver Standings">
+        <List.Dropdown
+          tooltip="Sort by"
+          onChange={async (newValue) => {
+            displaySelectStandingsType(newValue);
+            await LocalStorage.setItem("selectedDropdown", newValue);
+          }}
+          value={currentLeague}
+          defaultValue="Driver Standings"
+        >
           <List.Dropdown.Item title={driverTitle} value="Driver Standings" />
           <List.Dropdown.Item title={constructorTitle} value="Constructor Standings" />
         </List.Dropdown>

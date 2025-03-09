@@ -1,6 +1,6 @@
-import { Detail, List, Color, Icon, Action, ActionPanel } from "@raycast/api";
+import { Detail, List, Action, ActionPanel, Color, Icon, LocalStorage } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import getPastAndFutureDays from "./utils/getDateRange";
 
 interface Game {
@@ -45,10 +45,27 @@ export default function scoresAndSchedule() {
   // Fetch NFL Stats
 
   const [currentLeague, displaySelectLeague] = useState("NFL Games");
+  useEffect(() => {
+    async function loadStoredDropdown() {
+      const storedValue = await LocalStorage.getItem("selectedDropdown");
+
+      if (typeof storedValue === "string") {
+        displaySelectLeague(storedValue);
+      } else {
+        displaySelectLeague("NFL");
+      }
+    }
+
+    loadStoredDropdown();
+  }, []);
 
   const dateRange = getPastAndFutureDays(new Date());
 
-  const { isLoading: nflScheduleStats, data: nflScoresAndSchedule } = useFetch<{
+  const {
+    isLoading: nflScheduleStats,
+    data: nflScoresAndSchedule,
+    revalidate: nflRevalidate,
+  } = useFetch<{
     events: Game[];
   }>(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${dateRange}`);
 
@@ -110,6 +127,12 @@ export default function scoresAndSchedule() {
         ]}
         actions={
           <ActionPanel>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={nflRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Game Details on ESPN" url={`${nflGame.links[0].href}`} />
             {nflGame.competitions[0].competitors[1].team.links?.length > 0 && (
               <Action.OpenInBrowser
@@ -131,7 +154,11 @@ export default function scoresAndSchedule() {
 
   // Fetch NCAA Stats
 
-  const { isLoading: ncaaScheduleStats, data: ncaaScoresAndSchedule } = useFetch<{
+  const {
+    isLoading: ncaaScheduleStats,
+    data: ncaaScoresAndSchedule,
+    revalidate: ncaaRevalidate,
+  } = useFetch<{
     events: Game[];
   }>(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=${dateRange}`);
 
@@ -205,6 +232,12 @@ export default function scoresAndSchedule() {
           ]}
           actions={
             <ActionPanel>
+              <Action
+                title="Refresh"
+                icon={Icon.ArrowClockwise}
+                onAction={ncaaRevalidate}
+                shortcut={{ modifiers: ["cmd"], key: "r" }}
+              ></Action>
               <Action.OpenInBrowser title="View Game Details on ESPN" url={`${ncaaGame.links[0].href}`} />
               {ncaaGame.competitions[0].competitors[1].team.links?.length > 0 && (
                 <Action.OpenInBrowser
@@ -235,7 +268,15 @@ export default function scoresAndSchedule() {
     <List
       searchBarPlaceholder="Search for your favorite team"
       searchBarAccessory={
-        <List.Dropdown tooltip="Sort by" onChange={displaySelectLeague} defaultValue="NFL">
+        <List.Dropdown
+          tooltip="Sort by"
+          onChange={async (newValue) => {
+            displaySelectLeague(newValue);
+            await LocalStorage.setItem("selectedDropdown", newValue);
+          }}
+          value={currentLeague}
+          defaultValue="NFL"
+        >
           <List.Dropdown.Item title="NFL" value="NFL" />
           <List.Dropdown.Item title="NCAA" value="NCAA" />
         </List.Dropdown>

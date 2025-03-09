@@ -1,6 +1,6 @@
-import { Detail, List, Action, ActionPanel, Color, Icon } from "@raycast/api";
+import { Detail, List, Action, ActionPanel, Color, Icon, LocalStorage } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Article {
   headline: string;
@@ -61,11 +61,26 @@ interface Response {
 export default function scoresAndSchedule() {
   // Fetch NBA Articles
 
-  const [currentInfo, displaySelectInfo] = useState("NBA Articles");
+  const [currentInfo, setCurrentInfo] = useState<string>("Articles");
+  useEffect(() => {
+    async function loadStoredDropdown() {
+      const storedValue = await LocalStorage.getItem("selectedDropdown");
 
-  const { isLoading: nbaArticlesStatus, data: nbaArticlesData } = useFetch<ArticlesResponse>(
-    "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/news",
-  );
+      if (typeof storedValue === "string") {
+        setCurrentInfo(storedValue);
+      } else {
+        setCurrentInfo("Articles");
+      }
+    }
+
+    loadStoredDropdown();
+  }, []);
+
+  const {
+    isLoading: nbaArticlesStatus,
+    data: nbaArticlesData,
+    revalidate: nbaArticleRevalidate,
+  } = useFetch<ArticlesResponse>("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/news");
 
   const nbaArticles = nbaArticlesData?.articles || [];
   const nbaArticleItems = nbaArticles?.map((nbaArticle, index) => {
@@ -99,6 +114,12 @@ export default function scoresAndSchedule() {
               title="View Article on ESPN"
               url={`${nbaArticle?.links?.web?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={nbaArticleRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -107,9 +128,11 @@ export default function scoresAndSchedule() {
 
   // Fetch NBA Injuries
 
-  const { isLoading: nbaInjuryStatus, data: nbaInjuryData } = useFetch<Response>(
-    "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries",
-  );
+  const {
+    isLoading: nbaInjuryStatus,
+    data: nbaInjuryData,
+    revalidate: nbaInjuryRevalidate,
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries");
 
   const nbaInjuryItems = nbaInjuryData?.injuries.flatMap((injuryItem) => injuryItem.injuries) || [];
   const nbaItems = nbaInjuryItems?.map((nbaInjury, index) => {
@@ -166,6 +189,12 @@ export default function scoresAndSchedule() {
               title="View Player Details on ESPN"
               url={`${nbaInjury.athlete.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={nbaInjuryRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -174,9 +203,11 @@ export default function scoresAndSchedule() {
 
   // Fetch NBA Transactions
 
-  const { isLoading: nbaTransactionStatus, data: nbaTransactionsData } = useFetch<Response>(
-    "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?limit=50",
-  );
+  const {
+    isLoading: nbaTransactionStatus,
+    data: nbaTransactionsData,
+    revalidate: nbaTransactionRevalidate,
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?limit=50");
 
   const nbaTransactionDayItems: DayItems[] = [];
   const nbaTransactions = nbaTransactionsData?.transactions || [];
@@ -209,6 +240,12 @@ export default function scoresAndSchedule() {
               title="View Team Details on ESPN"
               url={`${nbaTransaction?.team.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={nbaTransactionRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />,
@@ -217,9 +254,11 @@ export default function scoresAndSchedule() {
 
   // Fetch WNBA Articles
 
-  const { isLoading: wnbaArticlesStatus, data: wnbaArticlesData } = useFetch<ArticlesResponse>(
-    "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/news",
-  );
+  const {
+    isLoading: wnbaArticlesStatus,
+    data: wnbaArticlesData,
+    revalidate: wnbaArticleRevalidate,
+  } = useFetch<ArticlesResponse>("https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/news");
 
   const wnbaArticles = wnbaArticlesData?.articles || [];
   const wnbaArticleItems = wnbaArticles?.map((wnbaArticle, index) => {
@@ -253,6 +292,12 @@ export default function scoresAndSchedule() {
               title="View Article on ESPN"
               url={`${wnbaArticle?.links?.web?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={wnbaArticleRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -261,9 +306,11 @@ export default function scoresAndSchedule() {
 
   // Fetch WNBA Injuries
 
-  const { isLoading: wnbaInjuryStatus, data: wnbaInjuryData } = useFetch<Response>(
-    "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/injuries",
-  );
+  const {
+    isLoading: wnbaInjuryStatus,
+    data: wnbaInjuryData,
+    revalidate: wnbaInjuryRevalidate,
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/injuries");
 
   const wnbaInjuryItems = wnbaInjuryData?.injuries.flatMap((injuryItem) => injuryItem.injuries) || [];
   const wnbaItems = wnbaInjuryItems?.map((wnbaInjury, index) => {
@@ -320,6 +367,12 @@ export default function scoresAndSchedule() {
               title="View Player Details on ESPN"
               url={`${wnbaInjury.athlete.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={wnbaInjuryRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -328,9 +381,11 @@ export default function scoresAndSchedule() {
 
   // Fetch WNBA Transactions
 
-  const { isLoading: wnbaTransactionStatus, data: wnbaTransactionsData } = useFetch<Response>(
-    "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/transactions?limit=50",
-  );
+  const {
+    isLoading: wnbaTransactionStatus,
+    data: wnbaTransactionsData,
+    revalidate: wnbaTransactionRevalidate,
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/transactions?limit=50");
 
   const wnbaTransactionDayItems: DayItems[] = [];
   const wnbaTransactions = wnbaTransactionsData?.transactions || [];
@@ -363,6 +418,12 @@ export default function scoresAndSchedule() {
               title="View Team Details on ESPN"
               url={`${wnbaTransaction?.team.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={wnbaTransactionRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />,
@@ -371,7 +432,11 @@ export default function scoresAndSchedule() {
 
   // Fetch Men's NCAA Articles
 
-  const { isLoading: mncaaArticlesStatus, data: mncaaArticlesData } = useFetch<ArticlesResponse>(
+  const {
+    isLoading: mncaaArticlesStatus,
+    data: mncaaArticlesData,
+    revalidate: mncaaArticleRevalidate,
+  } = useFetch<ArticlesResponse>(
     "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/news",
   );
 
@@ -407,6 +472,12 @@ export default function scoresAndSchedule() {
               title="View Article on ESPN"
               url={`${mncaaArticle?.links?.web?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={mncaaArticleRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -415,7 +486,11 @@ export default function scoresAndSchedule() {
 
   // Fetch Women's NCAA Articles
 
-  const { isLoading: wncaaArticlesStatus, data: wncaaArticlesData } = useFetch<ArticlesResponse>(
+  const {
+    isLoading: wncaaArticlesStatus,
+    data: wncaaArticlesData,
+    revalidate: wncaaArticleRevalidate,
+  } = useFetch<ArticlesResponse>(
     "https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/news",
   );
 
@@ -451,6 +526,12 @@ export default function scoresAndSchedule() {
               title="View Article on ESPN"
               url={`${wncaaArticle?.links?.web?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={wncaaArticleRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -474,7 +555,15 @@ export default function scoresAndSchedule() {
     <List
       searchBarPlaceholder="Search news, injuries, transactions"
       searchBarAccessory={
-        <List.Dropdown tooltip="Sort by" onChange={displaySelectInfo} defaultValue="NBA Articles">
+        <List.Dropdown
+          tooltip="Sort by"
+          onChange={async (newValue) => {
+            setCurrentInfo(newValue);
+            await LocalStorage.setItem("selectedDropdown", newValue);
+          }}
+          value={currentInfo}
+          defaultValue="NBA Articles"
+        >
           <List.Dropdown.Item title="NBA Articles" value="NBA Articles" />
           <List.Dropdown.Item title="NBA Injuries" value="NBA Injuries" />
           <List.Dropdown.Item title="NBA Transactions" value="NBA Transactions" />

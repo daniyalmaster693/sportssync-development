@@ -48,9 +48,11 @@ interface StandingsData {
 }
 
 export default function scoresAndSchedule() {
-  const { isLoading: nflStandingsStats, data: nflStandingsData } = useFetch<StandingsData>(
-    "https://site.web.api.espn.com/apis/v2/sports/football/nfl/standings",
-  );
+  const {
+    isLoading: nflStandingsStats,
+    data: nflStandingsData,
+    revalidate,
+  } = useFetch<StandingsData>("https://site.web.api.espn.com/apis/v2/sports/football/nfl/standings");
 
   if (nflStandingsStats) {
     return <Detail isLoading={true} />;
@@ -106,6 +108,12 @@ export default function scoresAndSchedule() {
           actions={
             <ActionPanel>
               <Action.OpenInBrowser title="View Team Details on ESPN" url={`${team1.team.links[0].href}`} />
+              <Action
+                title="Refresh"
+                icon={Icon.ArrowClockwise}
+                onAction={revalidate}
+                shortcut={{ modifiers: ["cmd"], key: "r" }}
+              ></Action>
             </ActionPanel>
           }
         />
@@ -159,6 +167,12 @@ export default function scoresAndSchedule() {
           actions={
             <ActionPanel>
               <Action.OpenInBrowser title="View Team Details on ESPN" url={`${team2.team.links[0].href}`} />
+              <Action
+                title="Refresh"
+                icon={Icon.ArrowClockwise}
+                onAction={revalidate}
+                shortcut={{ modifiers: ["cmd"], key: "r" }}
+              ></Action>
             </ActionPanel>
           }
         />

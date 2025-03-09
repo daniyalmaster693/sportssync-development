@@ -1,6 +1,6 @@
-import { Detail, List, Action, ActionPanel, Color, Icon } from "@raycast/api";
+import { Detail, List, Action, ActionPanel, Color, Icon, LocalStorage } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Stats {
   displayValue: string;
@@ -53,9 +53,25 @@ export default function scoresAndSchedule() {
   // Fetch EPL Standings
 
   const [currentLeague, displaySelectLeague] = useState("EPL");
-  const { isLoading: eplStats, data: eplData } = useFetch<StandingsData>(
-    "http://site.web.api.espn.com/apis/v2/sports/soccer/ENG.1/standings",
-  );
+  useEffect(() => {
+    async function loadStoredDropdown() {
+      const storedValue = await LocalStorage.getItem("selectedDropdown");
+
+      if (typeof storedValue === "string") {
+        displaySelectLeague(storedValue);
+      } else {
+        displaySelectLeague("EPL");
+      }
+    }
+
+    loadStoredDropdown();
+  }, []);
+
+  const {
+    isLoading: eplStats,
+    data: eplData,
+    revalidate: eplRevalidate,
+  } = useFetch<StandingsData>("http://site.web.api.espn.com/apis/v2/sports/soccer/ENG.1/standings");
 
   const eplItems = eplData?.children?.[0]?.standings?.entries || [];
   const eplTeams = eplItems.map((epl, index) => {
@@ -87,6 +103,12 @@ export default function scoresAndSchedule() {
         actions={
           <ActionPanel>
             <Action.OpenInBrowser title="View Team Details on ESPN" url={`${epl.team.links[0].href}`} />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={eplRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -95,9 +117,11 @@ export default function scoresAndSchedule() {
 
   // Fetch UEFA Standings
 
-  const { isLoading: uefaStats, data: uefaData } = useFetch<StandingsData>(
-    "https://site.web.api.espn.com/apis/v2/sports/soccer/uefa.champions/standings",
-  );
+  const {
+    isLoading: uefaStats,
+    data: uefaData,
+    revalidate: uefaRevalidate,
+  } = useFetch<StandingsData>("https://site.web.api.espn.com/apis/v2/sports/soccer/uefa.champions/standings");
 
   const uefaItems = uefaData?.children?.[0]?.standings?.entries || [];
 
@@ -130,6 +154,12 @@ export default function scoresAndSchedule() {
         actions={
           <ActionPanel>
             <Action.OpenInBrowser title="View Team Details on ESPN" url={`${uefa.team.links[0].href}`} />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={uefaRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -138,9 +168,11 @@ export default function scoresAndSchedule() {
 
   // Fetch SLL Standings
 
-  const { isLoading: sllStats, data: sllData } = useFetch<StandingsData>(
-    "https://site.web.api.espn.com/apis/v2/sports/soccer/ESP.1/standings",
-  );
+  const {
+    isLoading: sllStats,
+    data: sllData,
+    revalidate: sllRevalidate,
+  } = useFetch<StandingsData>("https://site.web.api.espn.com/apis/v2/sports/soccer/ESP.1/standings");
 
   const sllItems = sllData?.children?.[0]?.standings?.entries || [];
   const sllTeams = sllItems.map((sll, index) => {
@@ -172,6 +204,12 @@ export default function scoresAndSchedule() {
         actions={
           <ActionPanel>
             <Action.OpenInBrowser title="View Team Details on ESPN" url={`${sll.team.links[0].href}`} />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={sllRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -180,9 +218,11 @@ export default function scoresAndSchedule() {
 
   // Fetch GER Standings
 
-  const { isLoading: gerStats, data: gerData } = useFetch<StandingsData>(
-    "https://site.web.api.espn.com/apis/v2/sports/soccer/GER.1/standings",
-  );
+  const {
+    isLoading: gerStats,
+    data: gerData,
+    revalidate: gerRevalidate,
+  } = useFetch<StandingsData>("https://site.web.api.espn.com/apis/v2/sports/soccer/GER.1/standings");
 
   const gerItems = gerData?.children?.[0]?.standings?.entries || [];
   const gerTeams = gerItems.map((ger, index) => {
@@ -214,6 +254,12 @@ export default function scoresAndSchedule() {
         actions={
           <ActionPanel>
             <Action.OpenInBrowser title="View Team Details on ESPN" url={`${ger.team.links[0].href}`} />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={gerRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -222,9 +268,11 @@ export default function scoresAndSchedule() {
 
   // Fetch ITA Standings
 
-  const { isLoading: itaStats, data: itaData } = useFetch<StandingsData>(
-    "https://site.web.api.espn.com/apis/v2/sports/soccer/ITA.1/standings",
-  );
+  const {
+    isLoading: itaStats,
+    data: itaData,
+    revalidate: itaRevalidate,
+  } = useFetch<StandingsData>("https://site.web.api.espn.com/apis/v2/sports/soccer/ITA.1/standings");
 
   const itaItems = itaData?.children?.[0]?.standings?.entries || [];
 
@@ -257,6 +305,12 @@ export default function scoresAndSchedule() {
         actions={
           <ActionPanel>
             <Action.OpenInBrowser title="View Team Details on ESPN" url={`${ita.team.links[0].href}`} />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={itaRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -271,7 +325,15 @@ export default function scoresAndSchedule() {
     <List
       searchBarPlaceholder="Search for your favorite team"
       searchBarAccessory={
-        <List.Dropdown tooltip="Sort by" onChange={displaySelectLeague} defaultValue="EPL">
+        <List.Dropdown
+          tooltip="Sort by"
+          onChange={async (newValue) => {
+            displaySelectLeague(newValue);
+            await LocalStorage.setItem("selectedDropdown", newValue);
+          }}
+          value={currentLeague}
+          defaultValue="EPL"
+        >
           <List.Dropdown.Item title="EPL" value="EPL" />
           <List.Dropdown.Item title="UEFA" value="UEFA" />
           <List.Dropdown.Item title="SLL" value="SLL" />

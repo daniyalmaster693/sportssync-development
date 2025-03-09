@@ -54,7 +54,7 @@ export default function command() {
 
   const currentYear = new Date().getFullYear();
 
-  const { isLoading, data } = useFetch<Response>(
+  const { isLoading, data, revalidate } = useFetch<Response>(
     `https://site.api.espn.com/apis/site/v2/sports/racing/f1/scoreboard?dates=${currentYear}`,
   );
 
@@ -130,6 +130,12 @@ export default function command() {
         ]}
         actions={
           <ActionPanel>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={revalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Race Details on ESPN" url={`${race.links[0].href}`} />
             <Action.OpenInBrowser title="View Circuit Details on ESPN" url={`${race.links[2].href}`} />
           </ActionPanel>

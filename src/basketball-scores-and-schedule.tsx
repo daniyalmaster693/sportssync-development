@@ -1,6 +1,6 @@
-import { Detail, List, Color, Icon, Action, ActionPanel } from "@raycast/api";
+import { Detail, List, Action, ActionPanel, Color, Icon, LocalStorage } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import getPastAndFutureDays from "./utils/getDateRange";
 
 interface Competitor {
@@ -50,9 +50,25 @@ export default function scoresAndSchedule() {
   const dateRange = getPastAndFutureDays(new Date());
 
   const [currentLeague, displaySelectLeague] = useState("NBA Games");
-  const { isLoading: nbaScheduleStats, data: nbaScoresAndSchedule } = useFetch<Response>(
-    `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateRange}`,
-  );
+  useEffect(() => {
+    async function loadStoredDropdown() {
+      const storedValue = await LocalStorage.getItem("selectedDropdown");
+
+      if (typeof storedValue === "string") {
+        displaySelectLeague(storedValue);
+      } else {
+        displaySelectLeague("Articles");
+      }
+    }
+
+    loadStoredDropdown();
+  }, []);
+
+  const {
+    isLoading: nbaScheduleStats,
+    data: nbaScoresAndSchedule,
+    revalidate: nbaRevalidate,
+  } = useFetch<Response>(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateRange}`);
 
   const nbaDayItems: DayItems[] = [];
   const nbaGames = nbaScoresAndSchedule?.events || [];
@@ -123,6 +139,12 @@ export default function scoresAndSchedule() {
         ]}
         actions={
           <ActionPanel>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={nbaRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Game Details on ESPN" url={`${nbaGame.links[0].href}`} />
             {nbaGame.competitions[0].competitors[1].team.links?.length > 0 && (
               <Action.OpenInBrowser
@@ -145,9 +167,11 @@ export default function scoresAndSchedule() {
 
   // Fetch WNBA Stats
 
-  const { isLoading: wnbaScheduleStats, data: wnbaScoresAndSchedule } = useFetch<Response>(
-    `https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard?dates=${dateRange}`,
-  );
+  const {
+    isLoading: wnbaScheduleStats,
+    data: wnbaScoresAndSchedule,
+    revalidate: wnbaRevalidate,
+  } = useFetch<Response>(`https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard?dates=${dateRange}`);
 
   const wnbaDayItems: DayItems[] = [];
   const wnbaGames = wnbaScoresAndSchedule?.events || [];
@@ -218,6 +242,12 @@ export default function scoresAndSchedule() {
         ]}
         actions={
           <ActionPanel>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={wnbaRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Game Details on ESPN" url={`${wnbaGame.links[0].href}`} />
             {wnbaGame.competitions[0].competitors[1].team.links?.length > 0 && (
               <Action.OpenInBrowser
@@ -240,7 +270,11 @@ export default function scoresAndSchedule() {
 
   // Fetch MNCAA Stats
 
-  const { isLoading: mncaaScheduleStats, data: mncaaScoresAndSchedule } = useFetch<Response>(
+  const {
+    isLoading: mncaaScheduleStats,
+    data: mncaaScoresAndSchedule,
+    revalidate: mncaaRevalidate,
+  } = useFetch<Response>(
     `https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=${dateRange}`,
   );
 
@@ -312,6 +346,12 @@ export default function scoresAndSchedule() {
         ]}
         actions={
           <ActionPanel>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={mncaaRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Game Details on ESPN" url={`${mncaaGame.links[0].href}`} />
 
             {mncaaGame.competitions[0].competitors[1].team.links?.length > 0 && (
@@ -334,7 +374,11 @@ export default function scoresAndSchedule() {
 
   // Fetch Women's NCAA Stats
 
-  const { isLoading: wncaaScheduleStats, data: wncaaScoresAndSchedule } = useFetch<Response>(
+  const {
+    isLoading: wncaaScheduleStats,
+    data: wncaaScoresAndSchedule,
+    revalidate: wncaaRevalidate,
+  } = useFetch<Response>(
     `https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/scoreboard?dates=${dateRange}`,
   );
 
@@ -396,6 +440,12 @@ export default function scoresAndSchedule() {
         ]}
         actions={
           <ActionPanel>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={wncaaRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Game Details on ESPN" url={`${wncaaGame.links[0].href}`} />
             {wncaaGame.competitions[0].competitors[1].team.links?.length > 0 && (
               <Action.OpenInBrowser
@@ -447,7 +497,15 @@ export default function scoresAndSchedule() {
     <List
       searchBarPlaceholder="Search for your favorite team"
       searchBarAccessory={
-        <List.Dropdown tooltip="Sort by" onChange={displaySelectLeague} defaultValue="NBA">
+        <List.Dropdown
+          tooltip="Sort by"
+          onChange={async (newValue) => {
+            displaySelectLeague(newValue);
+            await LocalStorage.setItem("selectedDropdown", newValue);
+          }}
+          value={currentLeague}
+          defaultValue="NBA"
+        >
           <List.Dropdown.Item title="NBA" value="NBA" />
           <List.Dropdown.Item title="WNBA" value="WNBA" />
           <List.Dropdown.Item title="MNCAA" value="MNCAA" />

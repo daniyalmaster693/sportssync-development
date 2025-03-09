@@ -1,6 +1,6 @@
-import { Detail, List, Action, ActionPanel, Color, Icon } from "@raycast/api";
+import { Detail, List, Action, ActionPanel, Color, Icon, LocalStorage } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Article {
   headline: string;
@@ -61,11 +61,26 @@ interface Response {
 export default function scoresAndSchedule() {
   // Fetch NFL Articles
 
-  const [currentInfo, displaySelectInfo] = useState("Articles");
+  const [currentInfo, setCurrentInfo] = useState<string>("Articles");
+  useEffect(() => {
+    async function loadStoredDropdown() {
+      const storedValue = await LocalStorage.getItem("selectedDropdown");
 
-  const { isLoading: nflArticlesStatus, data: nflArticlesData } = useFetch<ArticlesResponse>(
-    "https://site.api.espn.com/apis/site/v2/sports/football/nfl/news",
-  );
+      if (typeof storedValue === "string") {
+        setCurrentInfo(storedValue);
+      } else {
+        setCurrentInfo("NFL Articles");
+      }
+    }
+
+    loadStoredDropdown();
+  }, []);
+
+  const {
+    isLoading: nflArticlesStatus,
+    data: nflArticlesData,
+    revalidate: nflArticleRevalidate,
+  } = useFetch<ArticlesResponse>("https://site.api.espn.com/apis/site/v2/sports/football/nfl/news");
 
   const nflArticles = nflArticlesData?.articles || [];
   const nflArticleItems = nflArticles?.map((nflArticle, index) => {
@@ -99,6 +114,12 @@ export default function scoresAndSchedule() {
               title="View Article on ESPN"
               url={`${nflArticle?.links?.web?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={nflArticleRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -107,9 +128,11 @@ export default function scoresAndSchedule() {
 
   // Fetch NFL Injuries
 
-  const { isLoading: nflInjuryStatus, data: nflInjuryData } = useFetch<Response>(
-    "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries",
-  );
+  const {
+    isLoading: nflInjuryStatus,
+    data: nflInjuryData,
+    revalidate: nflInjuryRevalidate,
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries");
 
   const nflInjuryItems = nflInjuryData?.injuries.flatMap((injuryItem) => injuryItem.injuries) || [];
   const nflItems = nflInjuryItems?.map((nflInjury, index) => {
@@ -166,6 +189,12 @@ export default function scoresAndSchedule() {
               title="View Player Details on ESPN"
               url={`${nflInjury.athlete.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={nflInjuryRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -174,9 +203,11 @@ export default function scoresAndSchedule() {
 
   // Fetch NFL Transactions
 
-  const { isLoading: nflTransactionStatus, data: nflTransactionsData } = useFetch<Response>(
-    "https://site.api.espn.com/apis/site/v2/sports/football/nfl/transactions?limit=50",
-  );
+  const {
+    isLoading: nflTransactionStatus,
+    data: nflTransactionsData,
+    revalidate: nflTransactionRevalidate,
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/football/nfl/transactions?limit=50");
 
   const nflTransactionDayItems: DayItems[] = [];
   const nflTransactions = nflTransactionsData?.transactions || [];
@@ -209,6 +240,12 @@ export default function scoresAndSchedule() {
               title="View Team Details on ESPN"
               url={`${nflTransaction?.team.links[0]?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={nflTransactionRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />,
@@ -217,9 +254,11 @@ export default function scoresAndSchedule() {
 
   // Fetch NCAA Articles
 
-  const { isLoading: ncaaArticlesStatus, data: ncaaArticlesData } = useFetch<ArticlesResponse>(
-    "https://site.api.espn.com/apis/site/v2/sports/football/college-football/news",
-  );
+  const {
+    isLoading: ncaaArticlesStatus,
+    data: ncaaArticlesData,
+    revalidate: ncaaArticleRevalidate,
+  } = useFetch<ArticlesResponse>("https://site.api.espn.com/apis/site/v2/sports/football/college-football/news");
 
   const ncaaArticles = ncaaArticlesData?.articles || [];
   const ncaaItems = ncaaArticles?.map((ncaaArticle, index) => {
@@ -253,6 +292,12 @@ export default function scoresAndSchedule() {
               title="View Article on ESPN"
               url={`${ncaaArticle?.links?.web?.href ?? "https://www.espn.com"}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={ncaaArticleRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
           </ActionPanel>
         }
       />
@@ -267,7 +312,15 @@ export default function scoresAndSchedule() {
     <List
       searchBarPlaceholder="Search news, injuries, transactions"
       searchBarAccessory={
-        <List.Dropdown tooltip="Sort by" onChange={displaySelectInfo} defaultValue="Articles">
+        <List.Dropdown
+          tooltip="Sort by"
+          onChange={async (newValue) => {
+            setCurrentInfo(newValue);
+            await LocalStorage.setItem("selectedDropdown", newValue);
+          }}
+          value={currentInfo}
+          defaultValue="NFL Articles"
+        >
           <List.Dropdown.Item title="NFL Articles" value="NFL Articles" />
           <List.Dropdown.Item title="NFL Injuries" value="NFL Injuries" />
           <List.Dropdown.Item title="NFL Transactions" value="NFL Transactions" />

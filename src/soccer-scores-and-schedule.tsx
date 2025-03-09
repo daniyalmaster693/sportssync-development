@@ -1,6 +1,6 @@
-import { Detail, List, Color, Icon, Action, ActionPanel } from "@raycast/api";
+import { Detail, List, Action, ActionPanel, Color, Icon, LocalStorage } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import getPastAndFutureDays from "./utils/getDateRange";
 
 interface Competitor {
@@ -47,12 +47,28 @@ interface Response {
 export default function scoresAndSchedule() {
   // Fetch EPL Stats
 
+  const [currentLeague, displaySelectLeague] = useState("EPL");
+  useEffect(() => {
+    async function loadStoredDropdown() {
+      const storedValue = await LocalStorage.getItem("selectedDropdown");
+
+      if (typeof storedValue === "string") {
+        displaySelectLeague(storedValue);
+      } else {
+        displaySelectLeague("EPL");
+      }
+    }
+
+    loadStoredDropdown();
+  }, []);
+
   const dateRange = getPastAndFutureDays(new Date());
 
-  const [currentLeague, displaySelectLeague] = useState("EPL");
-  const { isLoading: eplScheduleStats, data: eplScoresAndSchedule } = useFetch<Response>(
-    `https://site.api.espn.com/apis/site/v2/sports/soccer/ENG.1/scoreboard?dates=${dateRange}`,
-  );
+  const {
+    isLoading: eplScheduleStats,
+    data: eplScoresAndSchedule,
+    revalidate: eplRevalidate,
+  } = useFetch<Response>(`https://site.api.espn.com/apis/site/v2/sports/soccer/ENG.1/scoreboard?dates=${dateRange}`);
 
   const eplDayItems: DayItems[] = [];
   const eplGames = eplScoresAndSchedule?.events || [];
@@ -122,6 +138,12 @@ export default function scoresAndSchedule() {
         ]}
         actions={
           <ActionPanel>
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={eplRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Game Details on ESPN" url={`${eplGame.links[0].href}`} />
             {eplGame.competitions[0].competitors[1].team.links?.length > 0 && (
               <Action.OpenInBrowser
@@ -143,7 +165,11 @@ export default function scoresAndSchedule() {
 
   // Fetch UEFA Games
 
-  const { isLoading: uefaScheduleStats, data: uefaScoresAndSchedule } = useFetch<Response>(
+  const {
+    isLoading: uefaScheduleStats,
+    data: uefaScoresAndSchedule,
+    revalidate: uefaRevalidate,
+  } = useFetch<Response>(
     `https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=${dateRange}`,
   );
 
@@ -214,6 +240,13 @@ export default function scoresAndSchedule() {
         ]}
         actions={
           <ActionPanel>
+            {" "}
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={uefaRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Game Details on ESPN" url={`${uefaGame.links[0].href}`} />
             {uefaGame.competitions[0].competitors[1].team.links?.length > 0 && (
               <Action.OpenInBrowser
@@ -235,9 +268,11 @@ export default function scoresAndSchedule() {
 
   // Fetch SLL Stats
 
-  const { isLoading: sllScheduleStats, data: sllScoresAndSchedule } = useFetch<Response>(
-    `https://site.api.espn.com/apis/site/v2/sports/soccer/ESP.1/scoreboard?dates=${dateRange}`,
-  );
+  const {
+    isLoading: sllScheduleStats,
+    data: sllScoresAndSchedule,
+    revalidate: sllRevalidate,
+  } = useFetch<Response>(`https://site.api.espn.com/apis/site/v2/sports/soccer/ESP.1/scoreboard?dates=${dateRange}`);
 
   const sllDayItems: DayItems[] = [];
   const sllGames = sllScoresAndSchedule?.events || [];
@@ -306,6 +341,13 @@ export default function scoresAndSchedule() {
         ]}
         actions={
           <ActionPanel>
+            {" "}
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={sllRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Game Details on ESPN" url={`${sllGame.links[0].href}`} />
             {sllGame.competitions[0].competitors[1].team.links?.length > 0 && (
               <Action.OpenInBrowser
@@ -327,9 +369,11 @@ export default function scoresAndSchedule() {
 
   // Fetch Ger Games
 
-  const { isLoading: gerScheduleStats, data: gerScoresAndSchedule } = useFetch<Response>(
-    `https://site.api.espn.com/apis/site/v2/sports/soccer/GER.1/scoreboard?dates=${dateRange}`,
-  );
+  const {
+    isLoading: gerScheduleStats,
+    data: gerScoresAndSchedule,
+    revalidate: gerRevalidate,
+  } = useFetch<Response>(`https://site.api.espn.com/apis/site/v2/sports/soccer/GER.1/scoreboard?dates=${dateRange}`);
 
   const gerDayItems: DayItems[] = [];
   const gerGames = gerScoresAndSchedule?.events || [];
@@ -398,6 +442,13 @@ export default function scoresAndSchedule() {
         ]}
         actions={
           <ActionPanel>
+            {" "}
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={gerRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Game Details on ESPN" url={`${gerGame.links[0].href}`} />
             {gerGame.competitions[0].competitors[1].team.links?.length > 0 && (
               <Action.OpenInBrowser
@@ -419,9 +470,11 @@ export default function scoresAndSchedule() {
 
   // Fetch Ita Games
 
-  const { isLoading: itaScheduleStats, data: itaScoresAndSchedule } = useFetch<Response>(
-    `https://site.api.espn.com/apis/site/v2/sports/soccer/ITA.1/scoreboard?dates=${dateRange}`,
-  );
+  const {
+    isLoading: itaScheduleStats,
+    data: itaScoresAndSchedule,
+    revalidate: itaRevalidate,
+  } = useFetch<Response>(`https://site.api.espn.com/apis/site/v2/sports/soccer/ITA.1/scoreboard?dates=${dateRange}`);
 
   const itaDayItems: DayItems[] = [];
   const itaGames = itaScoresAndSchedule?.events || [];
@@ -490,6 +543,13 @@ export default function scoresAndSchedule() {
         ]}
         actions={
           <ActionPanel>
+            {" "}
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={itaRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            ></Action>
             <Action.OpenInBrowser title="View Game Details on ESPN" url={`${itaGame.links[0].href}`} />
             {itaGame.competitions[0].competitors[1].team.links?.length > 0 && (
               <Action.OpenInBrowser
@@ -547,7 +607,15 @@ export default function scoresAndSchedule() {
     <List
       searchBarPlaceholder="Search for your favorite team"
       searchBarAccessory={
-        <List.Dropdown tooltip="Sort by" onChange={displaySelectLeague} defaultValue="EPL">
+        <List.Dropdown
+          tooltip="Sort by"
+          onChange={async (newValue) => {
+            displaySelectLeague(newValue);
+            await LocalStorage.setItem("selectedDropdown", newValue);
+          }}
+          value={currentLeague}
+          defaultValue="EPL"
+        >
           <List.Dropdown.Item title="EPL" value="EPL" />
           <List.Dropdown.Item title="UEFA" value="UEFA" />
           <List.Dropdown.Item title="SLL" value="SLL" />
