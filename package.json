@@ -131,6 +131,12 @@
       "description": "View live scores across all supported league directly from your menubar",
       "mode": "menu-bar",
       "interval": "15s"
+    },
+    {
+      "name": "split-view-component",
+      "title": "Split View Component",
+      "description": "",
+      "mode": "view"
     }
   ],
   "dependencies": {

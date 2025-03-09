@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 interface Article {
   headline: string;
   published: string;
+  byline?: string;
+  description?: string;
   type: string;
   images: { url: string }[];
   links: { web: { href: string } };
@@ -82,6 +84,8 @@ export default function scoresAndSchedule() {
     revalidate: nflArticleRevalidate,
   } = useFetch<ArticlesResponse>("https://site.api.espn.com/apis/site/v2/sports/football/nfl/news");
 
+  const [showDetail, setShowDetail] = useState(false);
+
   const nflArticles = nflArticlesData?.articles || [];
   const nflArticleItems = nflArticles?.map((nflArticle, index) => {
     const articleDate = new Date(nflArticle?.published ?? "Unknown").toLocaleDateString([], {
@@ -103,13 +107,38 @@ export default function scoresAndSchedule() {
         key={index}
         title={`${nflArticle?.headline ?? "No Headline Found"}`}
         icon={{ source: nflArticle?.images[0]?.url }}
-        accessories={[
-          { tag: { value: articleType, color: Color.Green }, icon: Icon.Megaphone, tooltip: "Category" },
-          { text: { value: `${accessoryTitle ?? "No Date Found"}` }, tooltip: accessoryToolTip ?? "Unknown" },
-          { icon: Icon.Calendar },
-        ]}
+        accessories={
+          !showDetail
+            ? [
+                { tag: { value: articleType, color: Color.Green }, icon: Icon.Megaphone, tooltip: "Category" },
+                { text: articleDate, tooltip: "Date Published" },
+                { icon: Icon.Calendar },
+              ]
+            : []
+        }
+        detail={
+          showDetail ? (
+            <List.Item.Detail
+              markdown={`![Article Headline Image](${nflArticle?.images[0]?.url})`}
+              metadata={
+                <List.Item.Detail.Metadata>
+                  <List.Item.Detail.Metadata.Label title="Title" text={nflArticle.headline} />
+                  <List.Item.Detail.Metadata.Label title="Description" text={nflArticle.description} />
+                  <List.Item.Detail.Metadata.Separator />
+                  <List.Item.Detail.Metadata.Label title="Published" text={articleDate} />
+                  <List.Item.Detail.Metadata.Label title="Writer" text={nflArticle.byline ?? "Unknown"} />
+                  <List.Item.Detail.Metadata.Separator />
+                  <List.Item.Detail.Metadata.TagList title="Category">
+                    <List.Item.Detail.Metadata.TagList.Item text={articleType} color={Color.Green} />
+                  </List.Item.Detail.Metadata.TagList>
+                </List.Item.Detail.Metadata>
+              }
+            />
+          ) : null
+        }
         actions={
           <ActionPanel>
+            <Action title="Toggle Detailed View" icon={Icon.Sidebar} onAction={() => setShowDetail(!showDetail)} />
             <Action.OpenInBrowser
               title="View Article on ESPN"
               url={`${nflArticle?.links?.web?.href ?? "https://www.espn.com"}`}
@@ -285,13 +314,38 @@ export default function scoresAndSchedule() {
         key={index}
         title={`${ncaaArticle?.headline ?? "No Headline Found"}`}
         icon={{ source: ncaaArticle?.images[0]?.url }}
-        accessories={[
-          { tag: { value: articleType, color: Color.Green }, icon: Icon.Megaphone },
-          { text: { value: `${accessoryTitle ?? "No Date Found"}` }, tooltip: accessoryToolTip ?? "Unknown" },
-          { icon: Icon.Calendar },
-        ]}
+        accessories={
+          !showDetail
+            ? [
+                { tag: { value: articleType, color: Color.Green }, icon: Icon.Megaphone, tooltip: "Category" },
+                { text: articleDate, tooltip: "Date Published" },
+                { icon: Icon.Calendar },
+              ]
+            : []
+        }
+        detail={
+          showDetail ? (
+            <List.Item.Detail
+              markdown={`![Article Headline Image](${ncaaArticle?.images[0]?.url})`}
+              metadata={
+                <List.Item.Detail.Metadata>
+                  <List.Item.Detail.Metadata.Label title="Title" text={ncaaArticle.headline} />
+                  <List.Item.Detail.Metadata.Label title="Description" text={ncaaArticle.description} />
+                  <List.Item.Detail.Metadata.Separator />
+                  <List.Item.Detail.Metadata.Label title="Published" text={articleDate} />
+                  <List.Item.Detail.Metadata.Label title="Writer" text={ncaaArticle.byline ?? "Unknown"} />
+                  <List.Item.Detail.Metadata.Separator />
+                  <List.Item.Detail.Metadata.TagList title="Category">
+                    <List.Item.Detail.Metadata.TagList.Item text={articleType} color={Color.Green} />
+                  </List.Item.Detail.Metadata.TagList>
+                </List.Item.Detail.Metadata>
+              }
+            />
+          ) : null
+        }
         actions={
           <ActionPanel>
+            <Action title="Toggle Detailed View" icon={Icon.Sidebar} onAction={() => setShowDetail(!showDetail)} />
             <Action.OpenInBrowser
               title="View Article on ESPN"
               url={`${ncaaArticle?.links?.web?.href ?? "https://www.espn.com"}`}
@@ -314,6 +368,7 @@ export default function scoresAndSchedule() {
 
   return (
     <List
+      isShowingDetail={showDetail}
       searchBarPlaceholder="Search news, injuries, transactions"
       searchBarAccessory={
         <List.Dropdown

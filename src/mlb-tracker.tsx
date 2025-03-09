@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 interface Article {
   headline: string;
   published: string;
+  byline?: string;
+  description?: string;
   type: string;
   images: { url: string }[];
   links: { web: { href: string } };
@@ -83,6 +85,8 @@ export default function scoresAndSchedule() {
     revalidate: articleRevalidate,
   } = useFetch<ArticlesResponse>("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/news");
 
+  const [showDetail, setShowDetail] = useState(false);
+
   const mlbArticles = mlbArticlesData?.articles || [];
   const mlbArticleItems = mlbArticles?.map((mlbArticle, index) => {
     const articleDate = new Date(mlbArticle?.published ?? "Unknown").toLocaleDateString([], {
@@ -93,6 +97,7 @@ export default function scoresAndSchedule() {
 
     const accessoryTitle = articleDate;
     const accessoryToolTip = "Date Published";
+
     let articleType = mlbArticle?.type;
 
     if (articleType === "HeadlineNews") {
@@ -104,13 +109,38 @@ export default function scoresAndSchedule() {
         key={index}
         title={`${mlbArticle?.headline ?? "No Headline Found"}`}
         icon={{ source: mlbArticle?.images[0]?.url }}
-        accessories={[
-          { tag: { value: articleType, color: Color.Green }, icon: Icon.Megaphone, tooltip: "Category" },
-          { text: { value: `${accessoryTitle ?? "No Date Found"}` }, tooltip: accessoryToolTip ?? "Unknown" },
-          { icon: Icon.Calendar },
-        ]}
+        accessories={
+          !showDetail
+            ? [
+                { tag: { value: articleType, color: Color.Green }, icon: Icon.Megaphone, tooltip: "Category" },
+                { text: articleDate, tooltip: "Date Published" },
+                { icon: Icon.Calendar },
+              ]
+            : []
+        }
+        detail={
+          showDetail ? (
+            <List.Item.Detail
+              markdown={`![Article Headline Image](${mlbArticle?.images[0]?.url})`}
+              metadata={
+                <List.Item.Detail.Metadata>
+                  <List.Item.Detail.Metadata.Label title="Title" text={mlbArticle.headline} />
+                  <List.Item.Detail.Metadata.Label title="Description" text={mlbArticle.description} />
+                  <List.Item.Detail.Metadata.Separator />
+                  <List.Item.Detail.Metadata.Label title="Published" text={articleDate} />
+                  <List.Item.Detail.Metadata.Label title="Writer" text={mlbArticle.byline ?? "Unknown"} />
+                  <List.Item.Detail.Metadata.Separator />
+                  <List.Item.Detail.Metadata.TagList title="Category">
+                    <List.Item.Detail.Metadata.TagList.Item text={articleType} color={Color.Green} />
+                  </List.Item.Detail.Metadata.TagList>
+                </List.Item.Detail.Metadata>
+              }
+            />
+          ) : null
+        }
         actions={
           <ActionPanel>
+            <Action title="Toggle Detailed View" icon={Icon.Sidebar} onAction={() => setShowDetail(!showDetail)} />
             <Action.OpenInBrowser
               title="View Article on ESPN"
               url={`${mlbArticle?.links?.web?.href ?? "https://www.espn.com"}`}
@@ -262,6 +292,7 @@ export default function scoresAndSchedule() {
   }
   return (
     <List
+      isShowingDetail={showDetail}
       searchBarPlaceholder="Search news, injuries, transactions"
       searchBarAccessory={
         <List.Dropdown

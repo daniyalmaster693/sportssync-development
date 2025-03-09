@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 interface Article {
   headline: string;
   published: string;
+  byline?: string;
+  description?: string;
   type: string;
   images: { url: string }[];
   links: { web: { href: string } };
@@ -83,6 +85,8 @@ export default function scoresAndSchedule() {
     revalidate: articleRevalidate,
   } = useFetch<ArticlesResponse>("https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/news");
 
+  const [showDetail, setShowDetail] = useState(false);
+
   const nhlArticles = nhlArticlesData?.articles || [];
   const nhlArticleItems = nhlArticles?.map((nhlArticle, index) => {
     const articleDate = new Date(nhlArticle?.published ?? "Unknown").toLocaleDateString([], {
@@ -104,13 +108,38 @@ export default function scoresAndSchedule() {
         key={index}
         title={`${nhlArticle?.headline ?? "No Headline Found"}`}
         icon={{ source: nhlArticle?.images[0]?.url }}
-        accessories={[
-          { tag: { value: articleType, color: Color.Green }, icon: Icon.Megaphone, tooltip: "Category" },
-          { text: { value: `${accessoryTitle ?? "No Date Found"}` }, tooltip: accessoryToolTip ?? "Unknown" },
-          { icon: Icon.Calendar },
-        ]}
+        accessories={
+          !showDetail
+            ? [
+                { tag: { value: articleType, color: Color.Green }, icon: Icon.Megaphone, tooltip: "Category" },
+                { text: articleDate, tooltip: "Date Published" },
+                { icon: Icon.Calendar },
+              ]
+            : []
+        }
+        detail={
+          showDetail ? (
+            <List.Item.Detail
+              markdown={`![Article Headline Image](${nhlArticle?.images[0]?.url})`}
+              metadata={
+                <List.Item.Detail.Metadata>
+                  <List.Item.Detail.Metadata.Label title="Title" text={nhlArticle.headline} />
+                  <List.Item.Detail.Metadata.Label title="Description" text={nhlArticle.description} />
+                  <List.Item.Detail.Metadata.Separator />
+                  <List.Item.Detail.Metadata.Label title="Published" text={articleDate} />
+                  <List.Item.Detail.Metadata.Label title="Writer" text={nhlArticle.byline ?? "Unknown"} />
+                  <List.Item.Detail.Metadata.Separator />
+                  <List.Item.Detail.Metadata.TagList title="Category">
+                    <List.Item.Detail.Metadata.TagList.Item text={articleType} color={Color.Green} />
+                  </List.Item.Detail.Metadata.TagList>
+                </List.Item.Detail.Metadata>
+              }
+            />
+          ) : null
+        }
         actions={
           <ActionPanel>
+            <Action title="Toggle Detailed View" icon={Icon.Sidebar} onAction={() => setShowDetail(!showDetail)} />
             <Action.OpenInBrowser
               title="View Article on ESPN"
               url={`${nhlArticle?.links?.web?.href ?? "https://www.espn.com"}`}
@@ -262,6 +291,7 @@ export default function scoresAndSchedule() {
   }
   return (
     <List
+      isShowingDetail={showDetail}
       searchBarPlaceholder="Search news, injuries, transactions"
       searchBarAccessory={
         <List.Dropdown
