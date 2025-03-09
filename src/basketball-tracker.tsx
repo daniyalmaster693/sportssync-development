@@ -215,12 +215,12 @@ export default function scoresAndSchedule() {
         actions={
           <ActionPanel>
             <Action.OpenInBrowser
-              title="View Team Details on ESPN"
-              url={`${nbaInjury.athlete.team.links[0]?.href ?? "https://www.espn.com"}`}
-            />
-            <Action.OpenInBrowser
               title="View Player Details on ESPN"
               url={`${nbaInjury.athlete.links[0]?.href ?? "https://www.espn.com"}`}
+            />
+            <Action.OpenInBrowser
+              title="View Team Details on ESPN"
+              url={`${nbaInjury.athlete.team.links[0]?.href ?? "https://www.espn.com"}`}
             />
             <Action
               title="Refresh"
@@ -418,12 +418,12 @@ export default function scoresAndSchedule() {
         actions={
           <ActionPanel>
             <Action.OpenInBrowser
-              title="View Team Details on ESPN"
-              url={`${wnbaInjury.athlete.team.links[0]?.href ?? "https://www.espn.com"}`}
-            />
-            <Action.OpenInBrowser
               title="View Player Details on ESPN"
               url={`${wnbaInjury.athlete.links[0]?.href ?? "https://www.espn.com"}`}
+            />
+            <Action.OpenInBrowser
+              title="View Team Details on ESPN"
+              url={`${wnbaInjury.athlete.team.links[0]?.href ?? "https://www.espn.com"}`}
             />
             <Action
               title="Refresh"

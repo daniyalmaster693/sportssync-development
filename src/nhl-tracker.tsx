@@ -216,12 +216,12 @@ export default function scoresAndSchedule() {
         actions={
           <ActionPanel>
             <Action.OpenInBrowser
-              title="View Team Details on ESPN"
-              url={`${nhlInjury.athlete.team.links[0]?.href ?? "https://www.espn.com"}`}
-            />
-            <Action.OpenInBrowser
               title="View Player Details on ESPN"
               url={`${nhlInjury.athlete.links[0]?.href ?? "https://www.espn.com"}`}
+            />
+            <Action.OpenInBrowser
+              title="View Team Details on ESPN"
+              url={`${nhlInjury.athlete.team.links[0]?.href ?? "https://www.espn.com"}`}
             />
             <Action
               title="Refresh"
