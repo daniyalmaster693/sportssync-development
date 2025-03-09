@@ -23,9 +23,9 @@
       "mode": "view"
     },
     {
-      "name": "nhl-news",
-      "title": "NHL News",
-      "description": "View news articles across the NHL",
+      "name": "nhl-tracker",
+      "title": "NHL Tracker",
+      "description": "View injuries, transactions, and news articles across the NHL",
       "mode": "view"
     },
     {
@@ -43,27 +43,11 @@
       "mode": "view"
     },
     {
-      "name": "basketball-news",
-      "title": "Basketball News",
-      "subtitle": "NBA & WNBA",
-      "description": "View news articles across the NBA and WNBA",
+      "name": "basketball-tracker",
+      "title": "Basketball Tracker",
+      "subtitle": "NBA & WNBA & NCAA",
+      "description": "View articles, injuries, and transactions across the NBA, WNBA, and NCAA Men's and Women's Basketball League",
       "mode": "view"
-    },
-    {
-      "name": "college-basketball",
-      "title": "College Basketball Scores and Schedule",
-      "subtitle": "NCAA Men's & Women's",
-      "description": "View scores and upcoming games across the NCAA Men's and Women's League",
-      "mode": "view",
-      "disabledByDefault": true
-    },
-    {
-      "name": "college-basketball-news",
-      "title": "College Basketball News",
-      "subtitle": "NCAA Men's & Women's",
-      "description": "View news articles across the NCAA Men's and Women's League",
-      "mode": "view",
-      "disabledByDefault": true
     },
     {
       "name": "football-scores-and-schedule",
@@ -80,10 +64,10 @@
       "mode": "view"
     },
     {
-      "name": "football-news",
-      "title": "Football News",
+      "name": "football-tracker",
+      "title": "Football Tracker",
       "subtitle": "NFL & NCAA",
-      "description": "View news articles across the NFL and NCAA",
+      "description": "View articles, injuries, and transactions across the NFL and NCAA",
       "mode": "view"
     },
     {
@@ -99,9 +83,9 @@
       "mode": "view"
     },
     {
-      "name": "mlb-news",
-      "title": "MLB News",
-      "description": "View news articles across the MLB",
+      "name": "mlb-tracker",
+      "title": "MLB Tracker",
+      "description": "View articles, injuries, and transactions across the MLB",
       "mode": "view"
     },
     {
@@ -139,6 +123,12 @@
       "name": "f1-news",
       "title": "F1 News",
       "description": "View news articles across the F1",
+      "mode": "view"
+    },
+    {
+      "name": "nhl-player-stats",
+      "title": "NHL Player Stats",
+      "description": "View player stats across the NHL",
       "mode": "view"
     }
   ],

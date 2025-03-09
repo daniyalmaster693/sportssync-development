@@ -130,6 +130,7 @@ export default function scoresAndSchedule() {
   });
 
   // Fetch NCAA Stats
+
   const { isLoading: ncaaScheduleStats, data: ncaaScoresAndSchedule } = useFetch<{
     events: Game[];
   }>(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=${dateRange}`);
