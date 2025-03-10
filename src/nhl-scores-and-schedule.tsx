@@ -2,6 +2,8 @@ import { Detail, List, Color, Icon, Action, ActionPanel } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { useState } from "react";
 import getPastAndFutureDays from "./utils/getDateRange";
+import Plays from "./views/playbyplay";
+import Final from "./views/finalgameview";
 
 interface Competitor {
   team: {
@@ -247,7 +249,21 @@ export default function scoresAndSchedule() {
         }
         actions={
           <ActionPanel>
-            <Action title="Toggle Detailed View" icon={Icon.Sidebar} onAction={() => setShowDetail(!showDetail)} />
+            {nhlGame?.status?.type?.state === "pre" && (
+              <Action title="Detailed View" icon={Icon.Sidebar} onAction={() => setShowDetail(!showDetail)} />
+            )}
+
+            {nhlGame?.status?.type?.state === "in" && (
+              <Action.Push title="View Play by Play" icon={Icon.Sidebar} target={<Plays gameId={nhlGame.id} />} />
+            )}
+
+            {nhlGame?.status?.type?.state === "post" && (
+              <>
+                <Action.Push title="View Game Summary" icon={Icon.Sidebar} target={<Final gameId={nhlGame.id} />} />
+                <Action.Push title="View Play by Play" icon={Icon.Sidebar} target={<Plays gameId={nhlGame.id} />} />
+              </>
+            )}
+
             <Action
               title="Refresh"
               icon={Icon.ArrowClockwise}
@@ -256,18 +272,20 @@ export default function scoresAndSchedule() {
             ></Action>
             <Action.OpenInBrowser
               title="View Game Details on ESPN"
-              url={`${nhlGame?.links[0]?.href ?? "https://www.espn.com"}`}
+              url={`${nhlGame?.links[0]?.href ?? "https://www.espn.com/nhl"}`}
             />
+
             {nhlGame?.competitions[0]?.competitors[1]?.team.links?.length > 0 && (
               <Action.OpenInBrowser
                 title="View Away Team Details"
-                url={nhlGame?.competitions[0]?.competitors[1]?.team?.links[0]?.href ?? "https://www.espn.com"}
+                url={nhlGame?.competitions[0]?.competitors[1]?.team?.links[0]?.href ?? "https://www.espn.com/nhl"}
               />
             )}
+
             {nhlGame.competitions[0]?.competitors[0]?.team?.links?.length > 0 && (
               <Action.OpenInBrowser
                 title="View Home Team Details"
-                url={nhlGame?.competitions[0]?.competitors[0]?.team?.links[0]?.href ?? "https://www.espn.com"}
+                url={nhlGame?.competitions[0]?.competitors[0]?.team?.links[0]?.href ?? "https://www.espn.com/nhl"}
               />
             )}
           </ActionPanel>
