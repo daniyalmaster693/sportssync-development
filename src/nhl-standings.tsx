@@ -1,5 +1,6 @@
 import { Detail, List, Action, ActionPanel, Color, Icon } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
+import Plays from "./views/roster";
 
 interface Stats {
   displayValue: string;
@@ -10,6 +11,7 @@ interface Team {
   displayName: string;
   logos: { href: string }[];
   links: { href: string }[];
+  id: string;
 }
 
 interface StandingsEntry {
@@ -120,6 +122,7 @@ export default function command() {
         ]}
         actions={
           <ActionPanel>
+            <Action.Push title="View Roster" icon={Icon.Sidebar} target={<Plays gameId={team1.team.id} />} />
             <Action.OpenInBrowser
               title="View Team Details on ESPN"
               url={`${team1?.team?.links[0]?.href ?? "https://www.espn.com"}`}
@@ -176,6 +179,7 @@ export default function command() {
         icon={{ source: team2?.team?.logos[0]?.href }}
         actions={
           <ActionPanel>
+            <Action.Push title="View Roster" icon={Icon.Sidebar} target={<Plays gameId={team2.team.id} />} />
             <Action.OpenInBrowser
               title="View Team Details on ESPN"
               url={`${team2?.team?.links[0]?.href ?? "https://www.espn.com"}`}
@@ -232,6 +236,7 @@ export default function command() {
         icon={{ source: team3?.team?.logos[0]?.href }}
         actions={
           <ActionPanel>
+            <Action.Push title="View Roster" icon={Icon.Sidebar} target={<Plays gameId={team3.team.id} />} />
             <Action.OpenInBrowser
               title="View Team Details on ESPN"
               url={`${team3?.team?.links[0]?.href ?? "https://www.espn.com"}`}
@@ -288,6 +293,7 @@ export default function command() {
         icon={{ source: team4?.team?.logos[0]?.href }}
         actions={
           <ActionPanel>
+            <Action.Push title="View Roster" icon={Icon.Sidebar} target={<Plays gameId={team4.team.id} />} />
             <Action.OpenInBrowser
               title="View Team Details on ESPN"
               url={`${team4?.team?.links[0]?.href ?? "https://www.espn.com"}`}

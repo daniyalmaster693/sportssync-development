@@ -3,7 +3,7 @@ import { useFetch } from "@raycast/utils";
 import { useState } from "react";
 import getPastAndFutureDays from "./utils/getDateRange";
 import Plays from "./views/playbyplay";
-import Final from "./views/finalgameview";
+import Final from "./views/gamesummary";
 
 interface Competitor {
   team: {
