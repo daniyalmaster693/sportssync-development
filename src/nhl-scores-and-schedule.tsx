@@ -166,19 +166,15 @@ export default function scoresAndSchedule() {
     nhlDay?.games.push(
       <List.Item
         key={index}
-        title={nhlGame?.name?.replace(" at ", " vs ")}
+        title={!showDetail ? nhlGame?.name?.replace(" at ", " vs ") : nhlGame.shortName.replace(" @ ", " vs ")}
         icon={{ source: nhlGame?.competitions[0]?.competitors[1]?.team?.logo }}
-        accessories={
-          !showDetail
-            ? [
-                {
-                  text: { value: `${accessoryTitle ?? "No Date Found"}`, color: accessoryColor },
-                  tooltip: accessoryToolTip ?? "Unknown",
-                },
-                { icon: accessoryIcon },
-              ]
-            : []
-        }
+        accessories={[
+          {
+            text: { value: `${accessoryTitle ?? "No Date Found"}`, color: accessoryColor },
+            tooltip: accessoryToolTip ?? "Unknown",
+          },
+          { icon: accessoryIcon },
+        ]}
         detail={
           showDetail ? (
             <List.Item.Detail

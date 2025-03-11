@@ -95,8 +95,6 @@ export default function scoresAndSchedule() {
       year: "numeric",
     });
 
-    const accessoryTitle = articleDate;
-    const accessoryToolTip = "Date Published";
     let articleType = nhlArticle?.type;
 
     if (articleType === "HeadlineNews") {
