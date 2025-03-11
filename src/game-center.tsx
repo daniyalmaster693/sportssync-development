@@ -4,6 +4,23 @@ import { useState, useEffect } from "react";
 import CompletedGames from "./views/favoriteTeamCompleted";
 import ScheduledGames from "./views/favoriteTeamScheduled";
 import TeamInjuries from "./views/favoriteTeamTracker";
+import { getPreferenceValues } from "@raycast/api";
+
+interface preferences {
+  name: string;
+  id?: string;
+}
+const preferences = getPreferenceValues<Preferences>();
+
+const favoriteTeam = preferences.team;
+const favoriteLeague = preferences.league;
+const favoriteSport = preferences.sport;
+
+console.log(preferences);
+
+console.log(favoriteTeam);
+console.log(favoriteLeague);
+console.log(favoriteSport);
 
 const Command = () => {
   const [currentType, displaySelectType] = useState("NBA Games");
@@ -22,7 +39,7 @@ const Command = () => {
   }, []);
 
   const { isLoading: nhlScheduleStats, data: nhlScoresAndSchedule } = useFetch<Response>(
-    `https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/21/schedule`,
+    `https://site.api.espn.com/apis/site/v2/sports/${favoriteSport}/${favoriteLeague}/teams/${favoriteTeam}/schedule`,
   );
 
   if (!nhlScoresAndSchedule) {

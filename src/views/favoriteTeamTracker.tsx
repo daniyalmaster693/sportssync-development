@@ -1,5 +1,19 @@
 import { Detail, List, Color, Icon, Action, ActionPanel } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
+import { getPreferenceValues } from "@raycast/api";
+
+interface Preferences {
+  name: string;
+  id?: string;
+}
+async function getFavoriteTeamID() {
+  const preferences = getPreferenceValues<Preferences>();
+  console.log(preferences);
+}
+
+const favoriteTeam = getPreferenceValues().team as string;
+const favoriteLeague = getPreferenceValues().league as string;
+const favoriteSport = getPreferenceValues().sport as string;
 
 interface Address {
   city: string;
@@ -81,13 +95,13 @@ export default function TeamInjuries() {
   // Fetch Team Information
 
   const { isLoading: franchiseStats, data: franchiseData } = useFetch<Franchise>(
-    "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/tor",
+    `https://site.api.espn.com/apis/site/v2/sports/${favoriteSport}/${favoriteLeague}/teams/${favoriteTeam}`,
   );
 
   const franchise = franchiseData?.team?.franchise;
 
   const { isLoading, data } = useFetch<StandingsData>(
-    "https://site.web.api.espn.com/apis/v2/sports/hockey/nhl/standings?level=1",
+    `https://site.web.api.espn.com/apis/v2/sports/${favoriteSport}/${favoriteLeague}/standings?level=1`,
   );
 
   const teamPositionItems = data?.standings?.entries ?? [];
@@ -119,7 +133,7 @@ export default function TeamInjuries() {
       tagColor = Color.SecondaryText;
     }
 
-    if (team1.team.id === "21")
+    if (team1.team.id === `${favoriteTeam}`)
       return (
         <List.Item
           key={index}
@@ -151,7 +165,7 @@ export default function TeamInjuries() {
     isLoading: nhlInjuryStatus,
     data: nhlInjuryData,
     revalidate: injuryRevalidate,
-  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/injuries");
+  } = useFetch<Response>(`https://site.api.espn.com/apis/site/v2/sports/${favoriteSport}/${favoriteLeague}/injuries`);
 
   const nhlInjuryItems = nhlInjuryData?.injuries.flatMap((injuryItem) => injuryItem.injuries) || [];
   const nhlInjuryArray = nhlInjuryItems?.map((nhlInjury, index) => {
@@ -184,7 +198,7 @@ export default function TeamInjuries() {
       accessoryIcon = { source: Icon.Warning, tintColor: Color.Orange };
     }
 
-    if (nhlInjury.athlete.team.id === "21")
+    if (nhlInjury.athlete.team.id === `${favoriteTeam}`)
       return (
         <List.Item
           key={index}
@@ -225,7 +239,9 @@ export default function TeamInjuries() {
     isLoading: nhlTransactionStatus,
     data: nhlTransactionsData,
     revalidate: transactionRevalidate,
-  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/transactions?limit=200");
+  } = useFetch<Response>(
+    `https://site.api.espn.com/apis/site/v2/sports/${favoriteSport}/${favoriteLeague}/transactions?limit=200`,
+  );
 
   const nhlTransactionDayItems: DayItems[] = [];
   const nhlTransactions = nhlTransactionsData?.transactions || [];
@@ -246,7 +262,7 @@ export default function TeamInjuries() {
       nhlTransactionDayItems.push(dayItem);
     }
 
-    if (nhlTransaction.team.id === "21")
+    if (nhlTransaction.team.id === `${favoriteTeam}`)
       dayItem.transactions.push(
         <List.Item
           key={index}
