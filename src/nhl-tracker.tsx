@@ -241,7 +241,7 @@ export default function scoresAndSchedule() {
     isLoading: nhlTransactionStatus,
     data: nhlTransactionsData,
     revalidate: transactionRevalidate,
-  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/transactions?limit=50");
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/transactions?limit=75");
 
   const nhlTransactionDayItems: DayItems[] = [];
   const nhlTransactions = nhlTransactionsData?.transactions || [];
@@ -265,7 +265,7 @@ export default function scoresAndSchedule() {
     dayItem.transactions.push(
       <List.Item
         key={index}
-        title={`${nhlTransaction?.description ?? "No Headline Found"}`}
+        title={`${nhlTransaction?.description ?? "Unknown"}`}
         icon={{ source: nhlTransaction?.team.logos[0]?.href }}
         accessories={[{ icon: Icon.Switch }]}
         actions={
@@ -289,6 +289,7 @@ export default function scoresAndSchedule() {
   if (nhlArticlesStatus || nhlInjuryStatus || nhlTransactionStatus) {
     return <Detail isLoading={true} />;
   }
+
   return (
     <List
       isShowingDetail={showDetail}

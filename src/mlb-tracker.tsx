@@ -242,7 +242,7 @@ export default function scoresAndSchedule() {
     isLoading: mlbTransactionStatus,
     data: mlbTransactionsData,
     revalidate: transactionRevalidate,
-  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/transactions?limit=50");
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/transactions?limit=75");
 
   const mlbTransactionDayItems: DayItems[] = [];
   const mlbTransactions = mlbTransactionsData?.transactions || [];

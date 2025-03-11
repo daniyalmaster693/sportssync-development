@@ -54,6 +54,10 @@ export default function scoresAndSchedule() {
               title="View Article on ESPN"
               url={`${soccerArticle?.links?.web?.href ?? "https://www.espn.com"}`}
             />
+            <Action.CopyToClipboard
+              title="Copy Article Link"
+              content={`${soccerArticle?.links?.web?.href ?? "https://www.espn.com"}`}
+            />
           </ActionPanel>
         }
       />

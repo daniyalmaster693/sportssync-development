@@ -240,7 +240,7 @@ export default function scoresAndSchedule() {
     isLoading: nbaTransactionStatus,
     data: nbaTransactionsData,
     revalidate: nbaTransactionRevalidate,
-  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?limit=50");
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/transactions?limit=75");
 
   const nbaTransactionDayItems: DayItems[] = [];
   const nbaTransactions = nbaTransactionsData?.transactions || [];

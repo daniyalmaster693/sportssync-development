@@ -240,7 +240,7 @@ export default function scoresAndSchedule() {
     isLoading: nflTransactionStatus,
     data: nflTransactionsData,
     revalidate: nflTransactionRevalidate,
-  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/football/nfl/transactions?limit=50");
+  } = useFetch<Response>("https://site.api.espn.com/apis/site/v2/sports/football/nfl/transactions?limit=75");
 
   const nflTransactionDayItems: DayItems[] = [];
   const nflTransactions = nflTransactionsData?.transactions || [];
