@@ -35,7 +35,7 @@ export default function Plays({ gameId }: { gameId: string }) {
     `https://site.web.api.espn.com/apis/site/v2/sports/hockey/nhl/summary?event=${gameId}`,
   );
 
-  const [currentPeriod, displaySelectPeriod] = useState("P1");
+  const [currentPeriod, displaySelectPeriod] = useState("Major Plays");
   useEffect(() => {
     async function loadStoredDropdown() {
       const storedValue = await LocalStorage.getItem("selectedDropdown");
@@ -43,7 +43,7 @@ export default function Plays({ gameId }: { gameId: string }) {
       if (typeof storedValue === "string") {
         displaySelectPeriod(storedValue);
       } else {
-        displaySelectPeriod("P1");
+        displaySelectPeriod("Major Plays");
       }
     }
 
@@ -184,7 +184,7 @@ export default function Plays({ gameId }: { gameId: string }) {
             await LocalStorage.setItem("selectedDropdown", newValue);
           }}
           value={currentPeriod}
-          defaultValue="P1"
+          defaultValue="Major Plays"
         >
           <List.Dropdown.Item title="Major Plays" value="Major Plays" />
           <List.Dropdown.Item title="P1" value="P1" />
@@ -240,6 +240,29 @@ export default function Plays({ gameId }: { gameId: string }) {
                     },
                     { icon: { source: accessoryIcon, tintColor: accessoryColor } },
                   ]}
+                  actions={
+                    <ActionPanel>
+                      <Action
+                        title="Refresh"
+                        icon={Icon.ArrowClockwise}
+                        onAction={revalidate}
+                        shortcut={{ modifiers: ["cmd"], key: "r" }}
+                      />
+                      <Action.OpenInBrowser
+                        title="View Game Details on ESPN"
+                        url={`${nhlScoresAndSchedule?.header.links[0]?.href ?? "https://www.espn.com/nhl"}`}
+                      />
+                      <Action.OpenInBrowser
+                        title="View Away Team Details"
+                        url={`${nhlScoresAndSchedule?.header.competitions?.[0].competitors?.[1].team.links[0].href ?? "https://www.espn.com/nhl"}`}
+                      />
+
+                      <Action.OpenInBrowser
+                        title="View Home Team Details"
+                        url={`${nhlScoresAndSchedule?.header.competitions?.[0].competitors?.[0].team.links[0].href ?? "https://www.espn.com/nhl"}`}
+                      />
+                    </ActionPanel>
+                  }
                 />
               );
             })}

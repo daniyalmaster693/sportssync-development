@@ -1,5 +1,6 @@
 import { Detail, Color, Icon, Action, ActionPanel } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
+import Plays from "./playbyplay";
 
 interface NHLGame {
   header: any;
@@ -262,6 +263,7 @@ export default function Final({ gameId }: { gameId: string }) {
       }
       actions={
         <ActionPanel>
+          <Action.Push title="View Play by Play" icon={Icon.Sidebar} target={<Plays gameId={gameId} />} />
           <Action.OpenInBrowser
             title="View Game Details on ESPN"
             url={`${nhlScoresAndSchedule?.header.links[0]?.href ?? "https://www.espn.com/nhl"}`}
