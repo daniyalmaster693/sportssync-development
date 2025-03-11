@@ -397,12 +397,168 @@
           "value": "2"
         },
         {
+          "title": "Brooklyn Nets",
+          "value": "17"
+        },
+        {
+          "title": "Charlotte Hornets",
+          "value": "30"
+        },
+        {
+          "title": "Chicago Bulls",
+          "value": "4"
+        },
+        {
+          "title": "Cleveland Cavaliers",
+          "value": "5"
+        },
+        {
+          "title": "Dallas Mavericks",
+          "value": "6"
+        },
+        {
+          "title": "Denver Nuggets",
+          "value": "7"
+        },
+        {
+          "title": "Detroit Pistons",
+          "value": "8"
+        },
+        {
+          "title": "Golden State Warriors",
+          "value": "9"
+        },
+        {
+          "title": "Houston Rockets",
+          "value": "10"
+        },
+        {
+          "title": "Indiana Pacers",
+          "value": "11"
+        },
+        {
+          "title": "Los Angeles Clippers",
+          "value": "12"
+        },
+        {
+          "title": "Los Angeles Lakers",
+          "value": "13"
+        },
+        {
+          "title": "Memphis Grizzlies",
+          "value": "29"
+        },
+        {
+          "title": "Miami Heat",
+          "value": "14"
+        },
+        {
+          "title": "Milwaukee Bucks",
+          "value": "15"
+        },
+        {
+          "title": "Minnesota Timberwolves",
+          "value": "16"
+        },
+        {
+          "title": "New Orleans Pelicans",
+          "value": "3"
+        },
+        {
+          "title": "New York Knicks",
+          "value": "18"
+        },
+        {
+          "title": "Oklahoma City Thunder",
+          "value": "25"
+        },
+        {
+          "title": "Orlando Magic",
+          "value": "19"
+        },
+        {
+          "title": "Philadelphia 76ers",
+          "value": "20"
+        },
+        {
+          "title": "Phoenix Suns",
+          "value": "21"
+        },
+        {
+          "title": "Portland Trail Blazers",
+          "value": "22"
+        },
+        {
+          "title": "Sacramento Kings",
+          "value": "23"
+        },
+        {
+          "title": "San Antonio Spurs",
+          "value": "24"
+        },
+        {
+          "title": "Toronto Raptors",
+          "value": "28"
+        },
+        {
+          "title": "Utah Jazz",
+          "value": "26"
+        },
+        {
+          "title": "Washington Wizards",
+          "value": "27"
+        },
+        {
           "title": "Atlanta Dream",
           "value": "20"
         },
         {
           "title": "Chicago Sky",
           "value": "19"
+        },
+        {
+          "title": "Connecticut Sun",
+          "value": "18"
+        },
+        {
+          "title": "Dallas Wings",
+          "value": "3"
+        },
+        {
+          "title": "Golden State Valkyries",
+          "value": "129689"
+        },
+        {
+          "title": "Indiana Fever",
+          "value": "5"
+        },
+        {
+          "title": "Las Vegas Aces",
+          "value": "17"
+        },
+        {
+          "title": "Los Angeles Sparks",
+          "value": "6"
+        },
+        {
+          "title": "Minnesota Lynx",
+          "value": "8"
+        },
+        {
+          "title": "New York Liberty",
+          "value": "9"
+        },
+        {
+          "title": "Phoenix Mercury",
+          "value": "11"
+        },
+        {
+          "title": "Seattle Storm",
+          "value": "14"
+        },
+        {
+          "title": "Washington Mystics",
+          "value": "16"
         }
       ]
     }
