@@ -133,12 +133,6 @@
       "interval": "15s"
     },
     {
-      "name": "split-view-component",
-      "title": "Split View Component",
-      "description": "",
-      "mode": "view"
-    },
-    {
       "name": "game-center",
       "title": "Game Center",
       "description": "Follow your favorite teams from a simple menu, and track games, articles, standings and other info in your watch list.",
