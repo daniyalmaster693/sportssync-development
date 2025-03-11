@@ -1,4 +1,4 @@
-import { Detail, List, Color, Icon, Action, ActionPanel, LocalStorage } from "@raycast/api";
+import { Detail, List, LocalStorage } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { useState, useEffect } from "react";
 import CompletedGames from "./views/favoriteTeamCompleted";
@@ -15,12 +15,6 @@ const preferences = getPreferenceValues<Preferences>();
 const favoriteTeam = preferences.team;
 const favoriteLeague = preferences.league;
 const favoriteSport = preferences.sport;
-
-console.log(preferences);
-
-console.log(favoriteTeam);
-console.log(favoriteLeague);
-console.log(favoriteSport);
 
 const Command = () => {
   const [currentType, displaySelectType] = useState("NBA Games");

@@ -15,12 +15,15 @@ const favoriteSport = getPreferenceValues().sport as string;
 
 interface Competitor {
   team: {
+    logos: any;
     abbreviation: string;
     displayName: string;
     logo: string;
     links: { href: string }[];
   };
-  score: string;
+  score: {
+    displayValue: string;
+  };
   records?: { summary: string }[];
   probables?: { athlete: { displayName: string; headshot: string } }[];
 }
@@ -37,6 +40,7 @@ interface Status {
 interface Competition {
   competitors: Competitor[];
   type: { id: number };
+  status: Status;
   venue: {
     fullName: string;
     indoor: boolean;
