@@ -25,7 +25,7 @@ interface Response {
   injuries: Injury[];
 }
 
-export default function getTeamStandings() {
+export default function getInjuries() {
   const currentLeague = sportInfo.getLeague();
   const currentSport = sportInfo.getSport();
 

@@ -15,7 +15,7 @@ interface ArticlesResponse {
   articles: Article[];
 }
 
-export default function getTeamStandings() {
+export default function getArticles() {
   const currentLeague = sportInfo.getLeague();
   const currentSport = sportInfo.getSport();
 

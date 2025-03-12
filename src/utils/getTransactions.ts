@@ -40,7 +40,7 @@ interface Response {
   transactions: NHLTransaction[];
 }
 
-export default function getTeamStandings() {
+export default function getTransactions() {
   const currentLeague = sportInfo.getLeague();
   const currentSport = sportInfo.getSport();
 
