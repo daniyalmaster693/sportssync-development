@@ -17,7 +17,7 @@ export default function DisplayNews() {
       year: "numeric",
     });
 
-    let articleType = article?.type;
+    let articleType = article?.type ?? "Unknown";
 
     if (articleType === "HeadlineNews") {
       articleType = "Headline";
@@ -27,7 +27,11 @@ export default function DisplayNews() {
       <List.Item
         key={index}
         title={`${article?.headline ?? "No Headline Found"}`}
-        icon={{ source: article?.images[0]?.url }}
+        icon={{
+          source:
+            article?.images[0]?.url ??
+            `https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/${currentLeague}.png&w=100&h=100&transparent=true`,
+        }}
         accessories={
           !showDetail
             ? [
@@ -40,14 +44,17 @@ export default function DisplayNews() {
         detail={
           showDetail ? (
             <List.Item.Detail
-              markdown={`![Article Headline Image](${article?.images[0]?.url})`}
+              markdown={`![Article Headline Image](${article?.images[0]?.url ?? `https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/${currentLeague}.png&w=100&h=100&transparent=true`})`}
               metadata={
                 <List.Item.Detail.Metadata>
-                  <List.Item.Detail.Metadata.Label title="Title" text={article.headline} />
-                  <List.Item.Detail.Metadata.Label title="Description" text={article.description} />
+                  <List.Item.Detail.Metadata.Label title="Title" text={article?.headline ?? "No Headline Found"} />
+                  <List.Item.Detail.Metadata.Label
+                    title="Description"
+                    text={article?.description ?? "No Description Found"}
+                  />
                   <List.Item.Detail.Metadata.Separator />
                   <List.Item.Detail.Metadata.Label title="Published" text={articleDate} />
-                  <List.Item.Detail.Metadata.Label title="Writer" text={article.byline ?? "Unknown"} />
+                  <List.Item.Detail.Metadata.Label title="Writer" text={article?.byline ?? "Unknown"} />
                   <List.Item.Detail.Metadata.Separator />
                   <List.Item.Detail.Metadata.TagList title="Category">
                     <List.Item.Detail.Metadata.TagList.Item text={articleType} color={Color.Green} />
@@ -82,7 +89,7 @@ export default function DisplayNews() {
 
   return (
     <List isLoading={articleLoading}>
-      <List.Section title={`${articles?.length} Article${articles?.length !== 1 ? "s" : ""}`}>
+      <List.Section title={`${articles?.length ?? "0"} Article${articles?.length !== 1 ? "s" : ""}`}>
         {articleItems}
       </List.Section>
     </List>

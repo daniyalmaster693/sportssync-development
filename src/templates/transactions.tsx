@@ -15,18 +15,18 @@ export default function DisplayTransactions() {
   const transactions = transactionData?.transactions || [];
 
   const transactionItems = transactions?.map((transaction, index) => {
-    const transactionDate = new Date(transaction.date ?? "Unknown").toLocaleDateString([], {
+    const transactionDate = new Date(transaction?.date ?? "Unknown").toLocaleDateString([], {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
 
-    const nhlGameDay = transactionDate;
+    const playerTransaction = transactionDate;
 
-    let dayItem = transactionDayItems.find((item) => item.title === nhlGameDay);
+    let dayItem = transactionDayItems?.find((item) => item?.title === playerTransaction);
 
     if (!dayItem) {
-      dayItem = { title: nhlGameDay, transactions: [] };
+      dayItem = { title: playerTransaction, transactions: [] };
       transactionDayItems.push(dayItem);
     }
 
@@ -34,13 +34,17 @@ export default function DisplayTransactions() {
       <List.Item
         key={index}
         title={`${transaction?.description ?? "Unknown"}`}
-        icon={{ source: transaction?.team.logos[0]?.href }}
+        icon={{
+          source:
+            transaction?.team.logos[0]?.href ??
+            `https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/${currentLeague}.png&w=100&h=100&transparent=true`,
+        }}
         accessories={[{ icon: Icon.Switch }]}
         actions={
           <ActionPanel>
             <Action.OpenInBrowser
-              title="View Team Details on ESPN"
-              url={`${transaction?.team.links[0]?.href ?? `https://www.espn.com ?? ${currentLeague}`}`}
+              title={`View ${transaction?.team?.displayName ?? "Unknown"} Details on ESPN"`}
+              url={`${transaction?.team.links[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
             />
             <Action
               title="Refresh"
@@ -57,8 +61,8 @@ export default function DisplayTransactions() {
   return (
     <>
       {transactionDayItems.map((dayItem, index) => (
-        <List.Section key={index} title={`${dayItem.title}`}>
-          {dayItem.transactions}
+        <List.Section key={index} title={`${dayItem?.title ?? "Transaction"}`}>
+          {dayItem?.transactions}
         </List.Section>
       ))}
     </>

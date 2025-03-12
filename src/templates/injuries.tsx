@@ -4,11 +4,11 @@ import sportInfo from "../utils/getSportInfo";
 
 export default function DisplayInjuries() {
   const { injuryData, injuryLoading, injuryRevalidate } = getInjuries();
-  const currentLeague = sportInfo.getLeague();
+  const currentLeague = sportInfo?.getLeague();
 
-  const injuryItems = injuryData?.injuries.flatMap((injuryItem) => injuryItem.injuries) || [];
+  const injuryItems = injuryData?.injuries.flatMap((injuryItem) => injuryItem?.injuries) || [];
   const playerInjuryItems = injuryItems?.map((injury, index) => {
-    const articleDate = injury?.details?.returnDate ?? "";
+    const articleDate = injury?.details?.returnDate ?? "Unknown";
 
     if (!articleDate) {
       return null;
@@ -40,12 +40,16 @@ export default function DisplayInjuries() {
     return (
       <List.Item
         key={index}
-        title={`${injury.athlete.displayName}`}
-        subtitle={`${injury.athlete.position.displayName}`}
-        icon={{ source: injury.athlete.team.logos[0].href }}
+        title={`${injury?.athlete?.displayName ?? "Unknown"}`}
+        subtitle={`${injury?.athlete?.position?.displayName ?? "Unknown"}`}
+        icon={{
+          source:
+            injury?.athlete?.team?.logos?.[0]?.href ??
+            `https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/${currentLeague}.png&w=100&h=100&transparent=true`,
+        }}
         accessories={[
           {
-            tag: { value: injury.status.replace(/-/g, " "), color: tagColor },
+            tag: { value: injury?.status?.replace(/-/g, " "), color: tagColor },
             tooltip: "Status",
           },
           { text: articleDate, tooltip: "Est. Return Date" },
@@ -54,12 +58,12 @@ export default function DisplayInjuries() {
         actions={
           <ActionPanel>
             <Action.OpenInBrowser
-              title="View Player Details on ESPN"
-              url={`${injury.athlete.links[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
+              title={`View ${injury?.athlete?.displayName ?? "Unknown"} Profile on ESPN`}
+              url={`${injury?.athlete?.links?.[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
             />
             <Action.OpenInBrowser
-              title="View Team Details on ESPN"
-              url={`${injury.athlete.team.links[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
+              title={`View ${injury?.athlete?.team?.displayName ?? "Unknown"} Details on ESPN`}
+              url={`${injury?.athlete?.team?.links?.[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
             />
             <Action
               title="Refresh"

@@ -23,6 +23,7 @@ interface Response {
 interface Team {
   logos: { href: string }[];
   links: { href: string }[];
+  displayName: string;
 }
 
 interface NHLTransaction {

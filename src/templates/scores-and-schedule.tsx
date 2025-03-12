@@ -57,13 +57,13 @@ export default function DisplayScoresAndSchedule() {
     }
 
     if (currentSport === "baseball") {
-      timeDisplay = game?.status?.type?.detail;
+      timeDisplay = game?.status?.type?.detail ?? "Unknown";
       period = "";
       periodNumber = "";
     }
 
     if (currentSport === "soccer") {
-      timeDisplay = game?.status?.type?.detail;
+      timeDisplay = game?.status?.type?.detail ?? "Unknown";
       period = "";
       periodNumber = "";
     }
@@ -111,7 +111,7 @@ export default function DisplayScoresAndSchedule() {
       accessoryColor = Color.Orange;
     }
 
-    let gameTitle = game?.name;
+    let gameTitle = game?.name ?? "Unknown";
 
     if (currentSport === "hockey") {
       gameTitle = game?.name?.replace(" at ", " vs ");
@@ -121,7 +121,11 @@ export default function DisplayScoresAndSchedule() {
       <List.Item
         key={index}
         title={gameTitle}
-        icon={{ source: game?.competitions[0]?.competitors[1]?.team?.logo }}
+        icon={{
+          source:
+            game?.competitions?.[0]?.competitors?.[1]?.team?.logo ??
+            `https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/${currentLeague}.png&w=100&h=100&transparent=true`,
+        }}
         accessories={[
           {
             text: { value: `${accessoryTitle ?? "No Date Found"}`, color: accessoryColor },
@@ -145,20 +149,20 @@ export default function DisplayScoresAndSchedule() {
 
             {currentSport !== "racing" ? (
               <>
-                {game?.competitions[0]?.competitors[1]?.team.links?.length > 0 && (
+                {game?.competitions?.[0]?.competitors?.[1]?.team.links?.length > 0 && (
                   <Action.OpenInBrowser
-                    title={`View ${game?.competitions[0]?.competitors[1]?.team.displayName ?? "Away"} Team Details`}
+                    title={`View ${game?.competitions?.[0]?.competitors?.[1]?.team?.displayName ?? "Away"} Team Details`}
                     url={
-                      game?.competitions[0]?.competitors[1]?.team?.links[0]?.href ??
+                      game?.competitions?.[0]?.competitors?.[1]?.team?.links?.[0]?.href ??
                       `https://www.espn.com/${currentLeague}`
                     }
                   />
                 )}
-                {game.competitions[0]?.competitors[0]?.team?.links?.length > 0 && (
+                {game.competitions?.[0]?.competitors?.[0]?.team?.links?.length > 0 && (
                   <Action.OpenInBrowser
-                    title={`View ${game?.competitions[0]?.competitors[0]?.team.displayName ?? "Home"} Team Details`}
+                    title={`View ${game?.competitions?.[0]?.competitors?.[0]?.team?.displayName ?? "Home"} Team Details`}
                     url={
-                      game?.competitions[0]?.competitors[0]?.team?.links[0]?.href ??
+                      game?.competitions?.[0]?.competitors?.[0]?.team?.links?.[0]?.href ??
                       `https://www.espn.com/${currentLeague}`
                     }
                   />
@@ -166,8 +170,14 @@ export default function DisplayScoresAndSchedule() {
               </>
             ) : (
               <>
-                <Action.OpenInBrowser title="View Race Details on ESPN" url={`${game.links[0].href}`} />
-                <Action.OpenInBrowser title="View Circuit Details on ESPN" url={`${game.links[2].href}`} />
+                <Action.OpenInBrowser
+                  title="View Race Details on ESPN"
+                  url={`${game?.links?.[0].href ?? `https://www.espn.com/${currentLeague}`}`}
+                />
+                <Action.OpenInBrowser
+                  title="View Circuit Details on ESPN"
+                  url={`${game?.links?.[2].href ?? `https://www.espn.com/${currentLeague}`}`}
+                />
               </>
             )}
           </ActionPanel>
@@ -201,7 +211,7 @@ export default function DisplayScoresAndSchedule() {
       {gameItems?.map((sportGameDay, index) => (
         <List.Section
           key={index}
-          title={`${sportGameDay?.title}`}
+          title={`${sportGameDay?.title ?? "Unknown"}`}
           subtitle={`${sportGameDay?.games?.length} ${subTitleText}${sportGameDay?.games?.length !== 1 ? "s" : ""}`}
         >
           {sportGameDay?.games}
