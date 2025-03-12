@@ -101,9 +101,9 @@
       "mode": "view"
     },
     {
-      "name": "soccer-news",
-      "title": "Soccer News",
-      "description": "View news articles across the EPL, SLL, GER, and ITA Leagues",
+      "name": "soccer-tracker",
+      "title": "Soccer Tracker",
+      "description": "View articles, injuries, and transactions across the EPL, SLL, GER, and ITA Leagues",
       "mode": "view"
     },
     {
