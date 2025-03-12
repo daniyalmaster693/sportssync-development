@@ -3,6 +3,7 @@ import sportInfo from "./getSportInfo";
 
 interface Stats {
   displayValue: string;
+  summary: string;
 }
 
 interface Team {

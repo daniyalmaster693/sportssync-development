@@ -8,7 +8,7 @@ import DisplayTransactions from "./templates/transactions";
 sportInfo.setSportAndLeague("basketball", "nba");
 
 const displayStandings = () => {
-  return <DisplayTransactions />;
+  return <DisplayTeamStandings />;
 };
 
 export default displayStandings;
