@@ -56,7 +56,6 @@ const Command = () => {
           <List.Dropdown.Item title="Scheduled Games" value="Scheduled Games" />
           <List.Dropdown.Item title="Completed Games" value="Completed Games" />
           <List.Dropdown.Item title="Tracker" value="Tracker" />
-          <List.Dropdown.Item title="Pin List" value="Pin List" />
         </List.Dropdown>
       }
       isLoading={nhlScheduleStats}
@@ -78,8 +77,6 @@ const Command = () => {
           <TeamInjuries />
         </>
       )}
-
-      {currentType === "Pin List" && <></>}
     </List>
   );
 };

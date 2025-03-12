@@ -1,6 +1,7 @@
-import { Detail, List, Icon, Color, Action, ActionPanel, LocalStorage } from "@raycast/api";
-import { useFetch } from "@raycast/utils";
+import { Detail, List, Color, Icon, Action, ActionPanel, LocalStorage } from "@raycast/api";
 import { useState, useEffect } from "react";
+import getPlayByPlayEvents from "../utils/getPlaybyPlay";
+import sportInfo from "../utils/getSportInfo";
 
 interface GameHeader {
   links: { href: string }[];
@@ -9,7 +10,7 @@ interface GameHeader {
   }[];
 }
 
-interface NHLScoreAndSchedule {
+interface playByPlayData {
   header: GameHeader;
   boxscore: {
     teams: {
@@ -17,6 +18,7 @@ interface NHLScoreAndSchedule {
     }[];
   };
   plays: Array<{
+    [x: string]: any;
     type: { text: string };
     period: { number: string };
     clock: { displayValue: string };
@@ -26,14 +28,9 @@ interface NHLScoreAndSchedule {
 }
 
 export default function Plays({ gameId }: { gameId: string }) {
-  // Fetch NHL Stats
-  const {
-    isLoading: nhlScheduleStats,
-    data: nhlScoresAndSchedule,
-    revalidate,
-  } = useFetch<NHLScoreAndSchedule>(
-    `https://site.web.api.espn.com/apis/site/v2/sports/hockey/nhl/summary?event=${gameId}`,
-  );
+  const { playByPlayEventData, playByPlayLoading, playByPlayRevalidate } = getPlayByPlayEvents({ gameId });
+
+  const currentLeague = sportInfo.getLeague();
 
   const [currentPeriod, displaySelectPeriod] = useState("Major Plays");
   useEffect(() => {
@@ -50,17 +47,17 @@ export default function Plays({ gameId }: { gameId: string }) {
     loadStoredDropdown();
   }, []);
 
-  const nhlGames = nhlScoresAndSchedule?.plays || [];
-  const nhlItems: JSX.Element[] = [];
-  const majorPlays: NHLScoreAndSchedule["plays"] = [];
+  const events = playByPlayEventData?.plays || [];
+  const playByPlayEvents: JSX.Element[] = [];
+  const majorPlays: playByPlayData["plays"] = [];
 
-  const awayTeamId = nhlScoresAndSchedule?.boxscore?.teams?.[0]?.team?.id;
-  const awayTeamLogo = nhlScoresAndSchedule?.boxscore?.teams?.[0]?.team.logo;
+  const awayTeamId = playByPlayEventData?.boxscore?.teams?.[0]?.team?.id;
+  const awayTeamLogo = playByPlayEventData?.boxscore?.teams?.[0]?.team.logo;
 
-  const homeTeamId = nhlScoresAndSchedule?.boxscore?.teams?.[1]?.team?.id;
-  const homeTeamLogo = nhlScoresAndSchedule?.boxscore?.teams?.[1]?.team.logo;
+  const homeTeamId = playByPlayEventData?.boxscore?.teams?.[1]?.team?.id;
+  const homeTeamLogo = playByPlayEventData?.boxscore?.teams?.[1]?.team.logo;
 
-  const nhlLogo = "https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/nhl.png&w=100&h=100&transparent=true";
+  const leagueLogo = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/${currentLeague}.png&w=100&h=100&transparent=true`;
 
   const getTeamLogo = (teamId: string) => {
     if (teamId === awayTeamId) {
@@ -68,66 +65,66 @@ export default function Plays({ gameId }: { gameId: string }) {
     } else if (teamId === homeTeamId) {
       return homeTeamLogo;
     }
-    return nhlLogo;
+    return leagueLogo;
   };
 
-  nhlGames.forEach((nhlGame) => {
-    if (nhlGame.type.text === "Goal" || nhlGame.type.text === "Penalty" || nhlGame.text.includes("Fighting")) {
-      majorPlays.push(nhlGame);
+  events.forEach((game) => {
+    if (game.type.text === "Goal" || game.type.text === "Penalty" || game.text.includes("Fighting")) {
+      majorPlays.push(game);
     }
   });
 
-  const filteredGames = nhlGames.filter((nhlGame) => `P${nhlGame.period.number}` === currentPeriod);
+  const filteredGames = events.filter((game) => `P${game.period.number}` === currentPeriod);
 
-  filteredGames.forEach((nhlGame, index) => {
-    const accessoryTitle = `P${nhlGame.period.number} ${nhlGame.clock.displayValue}`;
+  filteredGames.forEach((game, index) => {
+    const accessoryTitle = `P${game.period.number} ${game.clock.displayValue}`;
     let accessoryIcon = Icon.Livestream;
     let accessoryColor = Color.SecondaryText;
     let accessoryTooltip = "Game Time";
 
-    if (nhlGame.type.text === "Goal") {
+    if (game.type.text === "Goal") {
       accessoryIcon = Icon.BullsEye;
       accessoryColor = Color.Green;
       accessoryTooltip = "Goal";
     }
 
-    if (nhlGame.type.text === "Penalty") {
+    if (game.type.text === "Penalty") {
       accessoryIcon = Icon.Hourglass;
       accessoryColor = Color.Orange;
       accessoryTooltip = "Penalty";
     }
 
-    if (nhlGame.text.includes("Fighting")) {
+    if (game.text.includes("Fighting")) {
       accessoryIcon = Icon.MinusCircle;
       accessoryColor = Color.Red;
       accessoryTooltip = "Fight";
     }
 
-    if (nhlGame.text.includes("saved")) {
+    if (game.text.includes("saved")) {
       accessoryIcon = Icon.BullsEyeMissed;
       accessoryColor = Color.Blue;
       accessoryTooltip = "Save";
     }
 
-    if (nhlGame.type.text.includes("Period Start")) {
+    if (game.type.text.includes("Period Start")) {
       accessoryIcon = Icon.Play;
       accessoryColor = Color.PrimaryText;
     }
 
-    if (nhlGame.type.text.includes("Period End") || nhlGame.type.text.includes("End of Game")) {
+    if (game.type.text.includes("Period End") || game.type.text.includes("End of Game")) {
       accessoryIcon = Icon.Flag;
       accessoryColor = Color.PrimaryText;
     }
 
-    const teamId = nhlGame?.team?.id;
+    const teamId = game?.team?.id;
     const currentTeam = getTeamLogo(teamId);
 
-    nhlItems.push(
+    playByPlayEvents.push(
       <List.Item
         key={index}
-        title={nhlGame.text}
+        title={game.text}
         icon={currentTeam}
-        subtitle={nhlGame.type.text}
+        subtitle={game.type.text}
         accessories={[
           {
             text: { value: `${accessoryTitle ?? "No time found"}`, color: accessoryColor },
@@ -140,21 +137,21 @@ export default function Plays({ gameId }: { gameId: string }) {
             <Action
               title="Refresh"
               icon={Icon.ArrowClockwise}
-              onAction={revalidate}
+              onAction={playByPlayRevalidate}
               shortcut={{ modifiers: ["cmd"], key: "r" }}
             />
             <Action.OpenInBrowser
               title="View Game Details on ESPN"
-              url={`${nhlScoresAndSchedule?.header.links[0]?.href ?? "https://www.espn.com/nhl"}`}
+              url={`${playByPlayEventData?.header.links[0]?.href ?? "https://www.espn.com/nhl"}`}
             />
             <Action.OpenInBrowser
               title="View Away Team Details"
-              url={`${nhlScoresAndSchedule?.header.competitions?.[0].competitors?.[1].team.links[0].href ?? "https://www.espn.com/nhl"}`}
+              url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[1].team.links[0].href ?? "https://www.espn.com/nhl"}`}
             />
 
             <Action.OpenInBrowser
               title="View Home Team Details"
-              url={`${nhlScoresAndSchedule?.header.competitions?.[0].competitors?.[0].team.links[0].href ?? "https://www.espn.com/nhl"}`}
+              url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[0].team.links[0].href ?? "https://www.espn.com/nhl"}`}
             />
           </ActionPanel>
         }
@@ -162,14 +159,14 @@ export default function Plays({ gameId }: { gameId: string }) {
     );
   });
 
-  nhlItems.reverse();
+  playByPlayEvents.reverse();
   majorPlays.reverse();
 
-  if (nhlScheduleStats) {
+  if (playByPlayLoading) {
     return <Detail isLoading={true} />;
   }
 
-  if (!nhlScoresAndSchedule) {
+  if (!playByPlayEventData) {
     return <Detail markdown="No data found." />;
   }
 
@@ -193,32 +190,32 @@ export default function Plays({ gameId }: { gameId: string }) {
           <List.Dropdown.Item title="OT" value="OT" />
         </List.Dropdown>
       }
-      isLoading={nhlScheduleStats}
+      isLoading={playByPlayLoading}
     >
       {currentPeriod === "Major Plays" && (
         <>
           <List.Section title="Major Plays" subtitle={`${majorPlays.length} Play${majorPlays.length !== 1 ? "s" : ""}`}>
-            {majorPlays.map((nhlGame, index) => {
-              const teamId = nhlGame?.team?.id;
+            {majorPlays.map((game, index) => {
+              const teamId = game?.team?.id;
               const currentTeam = getTeamLogo(teamId);
 
               let accessoryColor = Color.SecondaryText;
               let accessoryIcon = Icon.Livestream;
               let accessoryToolTip = "Game Time";
 
-              if (nhlGame.type.text === "Goal") {
+              if (game.type.text === "Goal") {
                 accessoryIcon = Icon.BullsEye;
                 accessoryColor = Color.Green;
                 accessoryToolTip = "Goal";
               }
 
-              if (nhlGame.type.text === "Penalty") {
+              if (game.type.text === "Penalty") {
                 accessoryIcon = Icon.Hourglass;
                 accessoryColor = Color.Orange;
                 accessoryToolTip = "Penalty";
               }
 
-              if (nhlGame.text.includes("Fighting")) {
+              if (game.text.includes("Fighting")) {
                 accessoryIcon = Icon.MinusCircle;
                 accessoryColor = Color.Red;
                 accessoryToolTip = "Fight";
@@ -227,13 +224,13 @@ export default function Plays({ gameId }: { gameId: string }) {
               return (
                 <List.Item
                   key={index}
-                  title={nhlGame.text}
+                  title={game.text}
                   icon={currentTeam}
-                  subtitle={nhlGame.type.text}
+                  subtitle={game.type.text}
                   accessories={[
                     {
                       text: {
-                        value: `P${nhlGame.period.number} ${nhlGame.clock.displayValue ?? "No time found"}`,
+                        value: `P${game.period.number} ${game.clock.displayValue ?? "No time found"}`,
                         color: accessoryColor,
                       },
                       tooltip: accessoryToolTip,
@@ -245,21 +242,21 @@ export default function Plays({ gameId }: { gameId: string }) {
                       <Action
                         title="Refresh"
                         icon={Icon.ArrowClockwise}
-                        onAction={revalidate}
+                        onAction={playByPlayRevalidate}
                         shortcut={{ modifiers: ["cmd"], key: "r" }}
                       />
                       <Action.OpenInBrowser
                         title="View Game Details on ESPN"
-                        url={`${nhlScoresAndSchedule?.header.links[0]?.href ?? "https://www.espn.com/nhl"}`}
+                        url={`${playByPlayEventData?.header.links[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
                       />
                       <Action.OpenInBrowser
-                        title="View Away Team Details"
-                        url={`${nhlScoresAndSchedule?.header.competitions?.[0].competitors?.[1].team.links[0].href ?? "https://www.espn.com/nhl"}`}
+                        title={`View ${game?.header?.competitions?.[0]?.competitors[1]?.team?.displayName ?? "Away"} Team Details`}
+                        url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[1].team.links[0].href ?? `https://www.espn.com/${currentLeague}`}`}
                       />
 
                       <Action.OpenInBrowser
-                        title="View Home Team Details"
-                        url={`${nhlScoresAndSchedule?.header.competitions?.[0].competitors?.[0].team.links[0].href ?? "https://www.espn.com/nhl"}`}
+                        title={`View ${game?.header?.competitions?.[0]?.competitors[0]?.team?.displayName ?? "Home"} Team Details`}
+                        url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[0].team.links[0].href ?? `https://www.espn.com/${currentLeague}`}`}
                       />
                     </ActionPanel>
                   }
@@ -274,9 +271,9 @@ export default function Plays({ gameId }: { gameId: string }) {
         <>
           <List.Section
             title={`Play by Play for ${currentPeriod}`}
-            subtitle={`${nhlItems.length} Play${nhlItems.length !== 1 ? "s" : ""}`}
+            subtitle={`${playByPlayEvents.length} Play${playByPlayEvents.length !== 1 ? "s" : ""}`}
           >
-            {nhlItems.length > 0 ? nhlItems : <List.Item title="No plays for this period." />}
+            {playByPlayEvents.length > 0 ? playByPlayEvents : <List.Item title="No plays for this period." />}
           </List.Section>
         </>
       )}

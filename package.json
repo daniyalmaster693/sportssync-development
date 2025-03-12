@@ -137,6 +137,12 @@
       "title": "Game Center",
       "description": "Follow your favorite teams from a simple menu, and track games, articles, standings and other info in your watch list.",
       "mode": "view"
+    },
+    {
+      "name": "test-command",
+      "title": "Test Command",
+      "description": "",
+      "mode": "view"
     }
   ],
   "preferences": [
