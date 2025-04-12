@@ -3,44 +3,39 @@ import { useState, useEffect } from "react";
 import getPlayByPlayEvents from "../utils/getPlaybyPlay";
 import sportInfo from "../utils/getSportInfo";
 
-interface GameHeader {
-  links: { href: string }[];
-  competitions: {
-    competitors: { team: { links: { href: string }[] } }[];
-  }[];
-}
-
-interface playByPlayData {
-  header: GameHeader;
-  boxscore: {
-    teams: {
-      team: { id: string; logo: string };
-    }[];
-  };
-  plays: Array<{
-    [x: string]: any;
-    type: { text: string };
-    period: { number: string };
-    clock: { displayValue: string };
-    team: { id: string };
-    text: string;
-  }>;
-}
-
 export default function Plays({ gameId }: { gameId: string }) {
   const { playByPlayEventData, playByPlayLoading, playByPlayRevalidate } = getPlayByPlayEvents({ gameId });
 
   const currentLeague = sportInfo.getLeague();
+  const currentSport = sportInfo.getSport();
 
-  const [currentPeriod, displaySelectPeriod] = useState("Major Plays");
+  let period = "P";
+
+  if (currentSport === "hockey") {
+    period = "P";
+  }
+
+  if (currentSport === "basketball") {
+    period = "Q";
+  }
+
+  if (currentSport === "football") {
+    period = "Q";
+  }
+
+  if (currentSport === "baseball") {
+    period = "Inning ";
+  }
+
+  const [currentPeriod, displaySelectPeriod] = useState(`${period}1`);
   useEffect(() => {
     async function loadStoredDropdown() {
-      const storedValue = await LocalStorage.getItem("selectedDropdown");
+      const storedValue = await LocalStorage.getItem("selectedPeriod");
 
       if (typeof storedValue === "string") {
         displaySelectPeriod(storedValue);
       } else {
-        displaySelectPeriod("Major Plays");
+        displaySelectPeriod(`${period}1`);
       }
     }
 
@@ -49,7 +44,6 @@ export default function Plays({ gameId }: { gameId: string }) {
 
   const events = playByPlayEventData?.plays || [];
   const playByPlayEvents: JSX.Element[] = [];
-  const majorPlays: playByPlayData["plays"] = [];
 
   const awayTeamId = playByPlayEventData?.boxscore?.teams?.[0]?.team?.id;
   const awayTeamLogo = playByPlayEventData?.boxscore?.teams?.[0]?.team.logo;
@@ -68,50 +62,137 @@ export default function Plays({ gameId }: { gameId: string }) {
     return leagueLogo;
   };
 
-  events.forEach((game) => {
-    if (game.type.text === "Goal" || game.type.text === "Penalty" || game.text.includes("Fighting")) {
-      majorPlays.push(game);
-    }
-  });
-
-  const filteredGames = events.filter((game) => `P${game.period.number}` === currentPeriod);
+  const filteredGames = events.filter((game) => `${period}${game?.period?.number}` === currentPeriod);
 
   filteredGames.forEach((game, index) => {
-    const accessoryTitle = `P${game.period.number} ${game.clock.displayValue}`;
+    let period;
+    let periodNumber = `${game?.period?.number}`;
+    let timeDisplay = game?.clock?.displayValue;
+
+    if (currentSport === "hockey") {
+      period = "P";
+    }
+
+    if (currentSport === "basketball") {
+      period = "Q";
+    }
+
+    if (currentSport === "football") {
+      period = "Q";
+    }
+
+    if (currentSport === "baseball") {
+      timeDisplay = game?.period?.type ?? "Unknown";
+      period = "";
+      periodNumber = "";
+    }
+
+    const accessoryTitle = `${period}${periodNumber} ${timeDisplay}`;
     let accessoryIcon = Icon.Livestream;
     let accessoryColor = Color.SecondaryText;
     let accessoryTooltip = "Game Time";
 
-    if (game.type.text === "Goal") {
-      accessoryIcon = Icon.BullsEye;
-      accessoryColor = Color.Green;
-      accessoryTooltip = "Goal";
+    if (currentLeague === "nhl") {
+      if (game.type.text === "Goal") {
+        accessoryIcon = Icon.BullsEye;
+        accessoryColor = Color.Green;
+        accessoryTooltip = "Goal";
+      }
+
+      if (game.type.text === "Penalty") {
+        accessoryIcon = Icon.Hourglass;
+        accessoryColor = Color.Orange;
+        accessoryTooltip = "Penalty";
+      }
+
+      if (game.text?.includes("Fighting")) {
+        accessoryIcon = Icon.MinusCircle;
+        accessoryColor = Color.Red;
+        accessoryTooltip = "Fight";
+      }
+
+      if (game.text?.includes("saved")) {
+        accessoryIcon = Icon.BullsEyeMissed;
+        accessoryColor = Color.Blue;
+        accessoryTooltip = "Save";
+      }
     }
 
-    if (game.type.text === "Penalty") {
-      accessoryIcon = Icon.Hourglass;
-      accessoryColor = Color.Orange;
-      accessoryTooltip = "Penalty";
+    if (currentSport === "basketball") {
+      if (game.text?.includes("makes free throw")) {
+        accessoryIcon = Icon.BullsEye;
+        accessoryColor = Color.Green;
+        accessoryTooltip = "Free Throw";
+      }
+
+      if (game.text?.includes("misses free throw")) {
+        accessoryIcon = Icon.BullsEyeMissed;
+        accessoryColor = Color.Orange;
+        accessoryTooltip = "Free Throw";
+      }
+
+      if (game.type.text === "Substitution") {
+        accessoryIcon = Icon.Switch;
+        accessoryColor = Color.Yellow;
+        accessoryTooltip = "Substitution";
+      }
+
+      if (game.type.text?.includes("Timeout")) {
+        accessoryIcon = Icon.Hourglass;
+        accessoryColor = Color.Blue;
+        accessoryTooltip = "Timeout";
+      }
+
+      if (game.type.text?.includes("Foul")) {
+        accessoryIcon = Icon.MinusCircle;
+        accessoryColor = Color.Red;
+        accessoryTooltip = "Foul";
+      }
     }
 
-    if (game.text.includes("Fighting")) {
-      accessoryIcon = Icon.MinusCircle;
-      accessoryColor = Color.Red;
-      accessoryTooltip = "Fight";
+    if (currentLeague === "mlb") {
+      if (game.type.text === "Play Result") {
+        accessoryIcon = Icon.BullsEye;
+        accessoryColor = Color.Green;
+        accessoryTooltip = "Play Result";
+      }
+
+      if (game.type.text === "Strike Swinging") {
+        accessoryIcon = Icon.BullsEyeMissed;
+        accessoryColor = Color.Orange;
+        accessoryTooltip = "Strike Swinging";
+      }
+
+      if (game.type.text === "Strike Looking") {
+        accessoryIcon = Icon.Eye;
+        accessoryColor = Color.Blue;
+        accessoryTooltip = "Strike Looking";
+      }
+
+      if (game.type.text === "Foul Ball") {
+        accessoryIcon = Icon.XMarkCircle;
+        accessoryColor = Color.Yellow;
+        accessoryTooltip = "Foul Ball";
+      }
     }
 
-    if (game.text.includes("saved")) {
-      accessoryIcon = Icon.BullsEyeMissed;
-      accessoryColor = Color.Blue;
-      accessoryTooltip = "Save";
-    }
-
-    if (game.type.text.includes("Period Start")) {
+    if (
+      game.type.text.includes("Period Start") ||
+      game.type.text.includes("Start Period") ||
+      game.type.text.includes("Start Inning")
+    ) {
       accessoryIcon = Icon.Play;
       accessoryColor = Color.PrimaryText;
     }
 
-    if (game.type.text.includes("Period End") || game.type.text.includes("End of Game")) {
+    if (
+      game.type.text.includes("Period End") ||
+      game.type.text.includes("Shootout End") ||
+      game.type.text.includes("End Period") ||
+      game.type.text.includes("End Inning") ||
+      game.type.text.includes("End of Game") ||
+      game.type.text.includes("End Game")
+    ) {
       accessoryIcon = Icon.Flag;
       accessoryColor = Color.PrimaryText;
     }
@@ -122,7 +203,7 @@ export default function Plays({ gameId }: { gameId: string }) {
     playByPlayEvents.push(
       <List.Item
         key={index}
-        title={game.text}
+        title={game.text ?? "No Description Available"}
         icon={currentTeam}
         subtitle={game.type.text}
         accessories={[
@@ -142,16 +223,16 @@ export default function Plays({ gameId }: { gameId: string }) {
             />
             <Action.OpenInBrowser
               title="View Game Details on ESPN"
-              url={`${playByPlayEventData?.header.links[0]?.href ?? "https://www.espn.com/nhl"}`}
+              url={`${playByPlayEventData?.header.links[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
             />
             <Action.OpenInBrowser
               title="View Away Team Details"
-              url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[1].team.links[0].href ?? "https://www.espn.com/nhl"}`}
+              url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[1].team.links[0].href ?? `https://www.espn.com/${currentLeague}`}`}
             />
 
             <Action.OpenInBrowser
               title="View Home Team Details"
-              url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[0].team.links[0].href ?? "https://www.espn.com/nhl"}`}
+              url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[0].team.links[0].href ?? `https://www.espn.com/${currentLeague}`}`}
             />
           </ActionPanel>
         }
@@ -160,7 +241,6 @@ export default function Plays({ gameId }: { gameId: string }) {
   });
 
   playByPlayEvents.reverse();
-  majorPlays.reverse();
 
   if (playByPlayLoading) {
     return <Detail isLoading={true} />;
@@ -170,6 +250,8 @@ export default function Plays({ gameId }: { gameId: string }) {
     return <Detail markdown="No data found." />;
   }
 
+  const uniquePeriods = Array.from(new Set(events.map((event) => event?.period?.number).filter(Boolean)));
+
   return (
     <List
       searchBarPlaceholder="Search for your favorite team"
@@ -178,105 +260,30 @@ export default function Plays({ gameId }: { gameId: string }) {
           tooltip="Sort By"
           onChange={async (newValue) => {
             displaySelectPeriod(newValue);
-            await LocalStorage.setItem("selectedDropdown", newValue);
+            await LocalStorage.setItem("selectedPeriod", newValue);
           }}
           value={currentPeriod}
-          defaultValue="Major Plays"
+          defaultValue={`${period}1`}
         >
-          <List.Dropdown.Item title="Major Plays" value="Major Plays" />
-          <List.Dropdown.Item title="P1" value="P1" />
-          <List.Dropdown.Item title="P2" value="P2" />
-          <List.Dropdown.Item title="P3" value="P3" />
-          <List.Dropdown.Item title="OT" value="OT" />
+          {uniquePeriods.map((periodNumber) => (
+            <List.Dropdown.Item
+              key={periodNumber}
+              title={`${period}${periodNumber}`}
+              value={`${period}${periodNumber}`}
+            />
+          ))}
         </List.Dropdown>
       }
       isLoading={playByPlayLoading}
     >
-      {currentPeriod === "Major Plays" && (
-        <>
-          <List.Section title="Major Plays" subtitle={`${majorPlays.length} Play${majorPlays.length !== 1 ? "s" : ""}`}>
-            {majorPlays.map((game, index) => {
-              const teamId = game?.team?.id;
-              const currentTeam = getTeamLogo(teamId);
-
-              let accessoryColor = Color.SecondaryText;
-              let accessoryIcon = Icon.Livestream;
-              let accessoryToolTip = "Game Time";
-
-              if (game.type.text === "Goal") {
-                accessoryIcon = Icon.BullsEye;
-                accessoryColor = Color.Green;
-                accessoryToolTip = "Goal";
-              }
-
-              if (game.type.text === "Penalty") {
-                accessoryIcon = Icon.Hourglass;
-                accessoryColor = Color.Orange;
-                accessoryToolTip = "Penalty";
-              }
-
-              if (game.text.includes("Fighting")) {
-                accessoryIcon = Icon.MinusCircle;
-                accessoryColor = Color.Red;
-                accessoryToolTip = "Fight";
-              }
-
-              return (
-                <List.Item
-                  key={index}
-                  title={game.text}
-                  icon={currentTeam}
-                  subtitle={game.type.text}
-                  accessories={[
-                    {
-                      text: {
-                        value: `P${game.period.number} ${game.clock.displayValue ?? "No time found"}`,
-                        color: accessoryColor,
-                      },
-                      tooltip: accessoryToolTip,
-                    },
-                    { icon: { source: accessoryIcon, tintColor: accessoryColor } },
-                  ]}
-                  actions={
-                    <ActionPanel>
-                      <Action
-                        title="Refresh"
-                        icon={Icon.ArrowClockwise}
-                        onAction={playByPlayRevalidate}
-                        shortcut={{ modifiers: ["cmd"], key: "r" }}
-                      />
-                      <Action.OpenInBrowser
-                        title="View Game Details on ESPN"
-                        url={`${playByPlayEventData?.header.links[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
-                      />
-                      <Action.OpenInBrowser
-                        title={`View ${game?.header?.competitions?.[0]?.competitors[1]?.team?.displayName ?? "Away"} Team Details`}
-                        url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[1].team.links[0].href ?? `https://www.espn.com/${currentLeague}`}`}
-                      />
-
-                      <Action.OpenInBrowser
-                        title={`View ${game?.header?.competitions?.[0]?.competitors[0]?.team?.displayName ?? "Home"} Team Details`}
-                        url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[0].team.links[0].href ?? `https://www.espn.com/${currentLeague}`}`}
-                      />
-                    </ActionPanel>
-                  }
-                />
-              );
-            })}
-          </List.Section>
-        </>
-      )}
-
-      {currentPeriod !== "Major Plays" && (
-        <>
-          <List.Section
-            title={`Play by Play for ${currentPeriod}`}
-            subtitle={`${playByPlayEvents.length} Play${playByPlayEvents.length !== 1 ? "s" : ""}`}
-          >
-            {playByPlayEvents.length > 0 ? playByPlayEvents : <List.Item title="No plays for this period." />}
-          </List.Section>
-        </>
-      )}
+      <>
+        <List.Section
+          title={`Play by Play for ${currentPeriod}`}
+          subtitle={`${playByPlayEvents.length} Play${playByPlayEvents.length !== 1 ? "s" : ""}`}
+        >
+          {playByPlayEvents.length > 0 ? playByPlayEvents : <List.Item title="No plays for this period." />}
+        </List.Section>
+      </>
     </List>
   );
 }

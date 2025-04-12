@@ -1,7 +1,8 @@
 import { Detail, List, Icon, Color, Action, ActionPanel } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
+import sportInfo from "../utils/getSportInfo";
 
-interface Player {
+interface RosterItem {
   displayName: string;
   displayWeight: string;
   displayHeight: string;
@@ -16,6 +17,12 @@ interface Player {
   links: {
     href: string;
   }[];
+  position?: {
+    displayName: string;
+  };
+  team?: {
+    displayName: string;
+  };
 }
 
 interface Coach {
@@ -24,48 +31,51 @@ interface Coach {
   experience?: string;
 }
 
-interface Athlete {
-  items: Player[];
-  position: string;
+interface GroupedAthletes {
+  items: RosterItem[];
 }
 
-interface NHLGame {
+interface RosterResponse {
   coach?: Coach[];
-  athletes: Athlete[];
+  athletes: GroupedAthletes[] | RosterItem[];
 }
 
-export default function Plays({ gameId }: { gameId: string }) {
-  // Fetch NHL Stats
+export default function RosterDetail({ teamId }: { teamId: string }) {
+  // Preferences Info
+
+  const currentLeague = sportInfo.getLeague();
+  const currentSport = sportInfo.getSport();
+
+  // Fetch Roster
   const {
-    isLoading: nhlScheduleStats,
-    data: nhlScoresAndSchedule,
-    revalidate,
-  } = useFetch<NHLGame>(`https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams/${gameId}/roster`);
+    isLoading: rosterLoading,
+    data: rosterData,
+    revalidate: rosterRevalidate,
+  } = useFetch<RosterResponse>(
+    `https://site.api.espn.com/apis/site/v2/sports/${currentSport}/${currentLeague}/teams/${teamId}/roster`,
+  );
 
   // Quick Access Variables
 
-  const nhlGame = nhlScoresAndSchedule;
-  const coachFirstName = nhlGame?.coach?.[0]?.firstName ?? "Unknown";
-  const coachLastName = nhlGame?.coach?.[0]?.lastName ?? "Unknown";
+  const roster =
+    Array.isArray(rosterData?.athletes) && "items" in rosterData.athletes[0]
+      ? (rosterData.athletes as GroupedAthletes[]).flatMap((group) => group.items)
+      : (rosterData?.athletes as RosterItem[]);
+  const athletes = roster;
+  const coachFirstName = rosterData?.coach?.[0]?.firstName ?? "Unknown";
+  const coachLastName = rosterData?.coach?.[0]?.lastName ?? "Unknown";
+  const coachExperience = rosterData?.coach?.[0]?.experience ?? "0";
   const headCoach = `${coachFirstName} ${coachLastName}`;
 
-  const centers = nhlGame?.athletes[0].items;
-  const leftWings = nhlGame?.athletes[1].items;
-  const rightWings = nhlGame?.athletes[2].items;
-  const defensemen = nhlGame?.athletes[3].items;
-  const goalies = nhlGame?.athletes[4].items;
-
-  // Forwards
-
-  const centersArray = centers?.map((player1, index) => {
-    const name = player1.displayName;
-    const weight = player1.displayWeight;
-    const height = player1.displayHeight;
-    const formattedHeight = height?.replace(/\s+/g, "");
-    const age = player1.age;
-    const headshot = player1.headshot?.href ?? Icon.Person;
-    const jersey = player1.jersey;
-    const health = player1.injuries?.[0]?.status;
+  const athletesArray = athletes?.map((athlete, index) => {
+    const name = athlete?.displayName ?? "Unknown";
+    const weight = athlete?.displayWeight ?? "Unknown";
+    const height = athlete?.displayHeight ?? "Unknown";
+    const formattedHeight = height?.replace(/\s+/g, "") ?? "Unknown";
+    const age = athlete?.age ?? "Unknown";
+    const headshot = athlete?.headshot?.href ?? Icon.Person;
+    const jersey = athlete?.jersey ?? "Unknown";
+    const health = athlete?.injuries?.[0]?.status;
 
     let healthIcon;
     let healthTooltip;
@@ -82,233 +92,19 @@ export default function Plays({ gameId }: { gameId: string }) {
       <List.Item
         key={index}
         title={name}
-        icon={{ source: headshot }}
-        subtitle={`${age} Years Old`}
+        subtitle={athlete?.position?.displayName ?? "Unknown Position"}
+        icon={headshot}
         accessories={[
           { tag: { value: jersey ?? "0", color: Color.Yellow }, icon: Icon.Hashtag, tooltip: "Jersey Number" },
-          { tag: { value: formattedHeight ?? "0", color: Color.Yellow }, icon: Icon.Ruler, tooltip: "Height in Feet" },
-          { tag: { value: weight ?? "0", color: Color.Yellow }, icon: Icon.Weights, tooltip: "Weight in LBS" },
+          { tag: { value: formattedHeight ?? "0", color: Color.Yellow }, icon: Icon.Ruler, tooltip: "Height in ft" },
+          { tag: { value: weight ?? "0", color: Color.Yellow }, icon: Icon.Weights, tooltip: "Weight in lbs" },
           { icon: healthIcon, tooltip: healthTooltip },
         ]}
         actions={
           <ActionPanel>
             <Action.OpenInBrowser
-              title="View Player Details on ESPN"
-              url={`${player1?.links[0]?.href ?? "https://www.espn.com/nhl"}`}
-            />
-            <Action
-              title="Refresh"
-              icon={Icon.ArrowClockwise}
-              onAction={revalidate}
-              shortcut={{ modifiers: ["cmd"], key: "r" }}
-            />
-          </ActionPanel>
-        }
-      />
-    );
-  });
-
-  const leftWingsArray = leftWings?.map((player2, index) => {
-    const name = player2.displayName;
-    const weight = player2.displayWeight;
-    const height = player2.displayHeight;
-    const formattedHeight = height?.replace(/\s+/g, "");
-    const age = player2.age;
-    const headshot = player2.headshot?.href ?? Icon.Person;
-    const jersey = player2.jersey;
-    const health = player2.injuries?.[0]?.status;
-
-    let healthIcon;
-    let healthTooltip;
-
-    if (!health) {
-      healthIcon = { source: Icon.Heart, tintColor: Color.Green };
-      healthTooltip = "Healthy";
-    } else {
-      healthIcon = { source: Icon.MedicalSupport, tintColor: Color.Orange };
-      healthTooltip = "Injured";
-    }
-
-    return (
-      <List.Item
-        key={index}
-        title={name}
-        icon={{ source: headshot }}
-        subtitle={`${age} Years Old`}
-        accessories={[
-          { tag: { value: jersey ?? "0", color: Color.Yellow }, icon: Icon.Hashtag, tooltip: "Jersey Number" },
-          { tag: { value: formattedHeight ?? "0", color: Color.Yellow }, icon: Icon.Ruler, tooltip: "Height in Feet" },
-          { tag: { value: weight ?? "0", color: Color.Yellow }, icon: Icon.Weights, tooltip: "Weight in LBS" },
-          { icon: healthIcon, tooltip: healthTooltip },
-        ]}
-        actions={
-          <ActionPanel>
-            <Action.OpenInBrowser
-              title="View Player Details on ESPN"
-              url={`${player2?.links[0]?.href ?? "https://www.espn.com/nhl"}`}
-            />
-            <Action
-              title="Refresh"
-              icon={Icon.ArrowClockwise}
-              onAction={revalidate}
-              shortcut={{ modifiers: ["cmd"], key: "r" }}
-            />
-          </ActionPanel>
-        }
-      />
-    );
-  });
-
-  const rightWingsArray = rightWings?.map((player3, index) => {
-    const name = player3.displayName;
-    const weight = player3.displayWeight;
-    const height = player3.displayHeight;
-    const formattedHeight = height?.replace(/\s+/g, "");
-    const age = player3.age;
-    const headshot = player3.headshot?.href ?? Icon.Person;
-    const jersey = player3.jersey;
-    const health = player3.injuries?.[0]?.status;
-
-    let healthIcon;
-    let healthTooltip;
-
-    if (!health) {
-      healthIcon = { source: Icon.Heart, tintColor: Color.Green };
-      healthTooltip = "Healthy";
-    } else {
-      healthIcon = { source: Icon.MedicalSupport, tintColor: Color.Orange };
-      healthTooltip = "Injured";
-    }
-
-    return (
-      <List.Item
-        key={index}
-        title={name}
-        icon={`${headshot}`}
-        subtitle={`${age} Years Old`}
-        accessories={[
-          { tag: { value: jersey ?? "0", color: Color.Yellow }, icon: Icon.Hashtag, tooltip: "Jersey Number" },
-          { tag: { value: formattedHeight ?? "0", color: Color.Yellow }, icon: Icon.Ruler, tooltip: "Height in Feet" },
-          { tag: { value: weight ?? "0", color: Color.Yellow }, icon: Icon.Weights, tooltip: "Weight in LBS" },
-          { icon: healthIcon, tooltip: healthTooltip },
-        ]}
-        actions={
-          <ActionPanel>
-            <Action.OpenInBrowser
-              title="View Player Details on ESPN"
-              url={`${player3?.links[0]?.href ?? "https://www.espn.com/nhl"}`}
-            />
-            <Action
-              title="Refresh"
-              icon={Icon.ArrowClockwise}
-              onAction={revalidate}
-              shortcut={{ modifiers: ["cmd"], key: "r" }}
-            />
-          </ActionPanel>
-        }
-      />
-    );
-  });
-
-  // Defense
-
-  const defenseArray = defensemen?.map((player4, index) => {
-    const name = player4.displayName;
-    const weight = player4.displayWeight;
-    const height = player4.displayHeight;
-    const formattedHeight = height?.replace(/\s+/g, "");
-    const age = player4.age;
-    const headshot = player4.headshot?.href ?? Icon.Person;
-    const jersey = player4.jersey;
-    const health = player4.injuries?.[0]?.status;
-
-    let healthIcon;
-    let healthTooltip;
-
-    if (!health) {
-      healthIcon = { source: Icon.Heart, tintColor: Color.Green };
-      healthTooltip = "Healthy";
-    } else {
-      healthIcon = { source: Icon.MedicalSupport, tintColor: Color.Orange };
-      healthTooltip = "Injured";
-    }
-
-    return (
-      <List.Item
-        key={index}
-        title={name}
-        icon={{ source: headshot }}
-        subtitle={`${age} Years Old`}
-        accessories={[
-          { tag: { value: jersey ?? "0", color: Color.Yellow }, icon: Icon.Hashtag, tooltip: "Jersey Number" },
-          { tag: { value: formattedHeight ?? "0", color: Color.Yellow }, icon: Icon.Ruler, tooltip: "Height in Feet" },
-          { tag: { value: weight ?? "0", color: Color.Yellow }, icon: Icon.Weights, tooltip: "Weight in LBS" },
-          { icon: healthIcon, tooltip: healthTooltip },
-        ]}
-        actions={
-          <ActionPanel>
-            <Action.OpenInBrowser
-              title="View Player Details on ESPN"
-              url={`${player4?.links[0]?.href ?? "https://www.espn.com/nhl"}`}
-            />
-            <Action
-              title="Refresh"
-              icon={Icon.ArrowClockwise}
-              onAction={revalidate}
-              shortcut={{ modifiers: ["cmd"], key: "r" }}
-            />
-          </ActionPanel>
-        }
-      />
-    );
-  });
-
-  // Goalies
-
-  const goaliesArray = goalies?.map((player5, index) => {
-    const name = player5.displayName;
-    const weight = player5.displayWeight;
-    const height = player5.displayHeight;
-    const formattedHeight = height?.replace(/\s+/g, "");
-    const age = player5.age;
-    const headshot = player5.headshot?.href ?? Icon.Person;
-    const jersey = player5.jersey;
-    const health = player5.injuries?.[0]?.status;
-
-    let healthIcon;
-    let healthTooltip;
-
-    if (!health) {
-      healthIcon = { source: Icon.Heart, tintColor: Color.Green };
-      healthTooltip = "Healthy";
-    } else {
-      healthIcon = { source: Icon.MedicalSupport, tintColor: Color.Orange };
-      healthTooltip = "Injured";
-    }
-
-    return (
-      <List.Item
-        key={index}
-        title={name}
-        icon={{ source: headshot }}
-        subtitle={`${age} Years Old`}
-        accessories={[
-          { tag: { value: jersey ?? "0", color: Color.Yellow }, icon: Icon.Hashtag, tooltip: "Jersey Number" },
-          { tag: { value: formattedHeight ?? "0", color: Color.Yellow }, icon: Icon.Ruler, tooltip: "Height in Feet" },
-          { tag: { value: weight ?? "0", color: Color.Yellow }, icon: Icon.Weights, tooltip: "Weight in LBS" },
-          { icon: healthIcon, tooltip: healthTooltip },
-        ]}
-        actions={
-          <ActionPanel>
-            <Action.OpenInBrowser
-              title="View Player Details on ESPN"
-              url={`${player5?.links[0]?.href ?? "https://www.espn.com/nhl"}`}
-            />
-            <Action
-              title="Refresh"
-              icon={Icon.ArrowClockwise}
-              onAction={revalidate}
-              shortcut={{ modifiers: ["cmd"], key: "r" }}
+              title="View Player Details"
+              url={athlete?.links?.[0]?.href ?? `https://www.espn.com/${currentLeague}`}
             />
           </ActionPanel>
         }
@@ -318,16 +114,18 @@ export default function Plays({ gameId }: { gameId: string }) {
 
   // Api Stuff
 
-  if (nhlScheduleStats) {
+  if (rosterLoading) {
     return <Detail isLoading={true} />;
   }
 
-  if (!nhlScoresAndSchedule) {
+  if (!rosterData) {
     return <Detail markdown="No data found." />;
   }
 
   return (
-    <List searchBarPlaceholder="Search for your favorite team" isLoading={nhlScheduleStats}>
+    <List searchBarPlaceholder="Search for your roster or coach" isLoading={rosterLoading}>
+      <List.Section title="Athletes">{athletesArray}</List.Section>
+
       <List.Section title="Head Coach">
         <List.Item
           title={`${headCoach}`}
@@ -335,7 +133,7 @@ export default function Plays({ gameId }: { gameId: string }) {
           accessories={[
             {
               tag: {
-                value: `${nhlGame?.coach?.[0]?.experience ?? "0"} exp`,
+                value: `${coachExperience} exp`,
                 color: Color.Yellow,
               },
               icon: Icon.Clock,
@@ -347,19 +145,13 @@ export default function Plays({ gameId }: { gameId: string }) {
               <Action
                 title="Refresh"
                 icon={Icon.ArrowClockwise}
-                onAction={revalidate}
+                onAction={rosterRevalidate}
                 shortcut={{ modifiers: ["cmd"], key: "r" }}
               />
             </ActionPanel>
           }
         />
       </List.Section>
-
-      <List.Section title={`${nhlGame?.athletes?.[0]?.position}`}>{centersArray}</List.Section>
-      <List.Section title={`${nhlGame?.athletes?.[1]?.position}`}>{rightWingsArray}</List.Section>
-      <List.Section title={`${nhlGame?.athletes?.[2]?.position}`}>{leftWingsArray}</List.Section>
-      <List.Section title={`${nhlGame?.athletes?.[3]?.position}`}>{defenseArray}</List.Section>
-      <List.Section title={`${nhlGame?.athletes?.[4]?.position}`}>{goaliesArray}</List.Section>
     </List>
   );
 }

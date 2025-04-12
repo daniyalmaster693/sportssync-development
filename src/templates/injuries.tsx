@@ -8,9 +8,9 @@ export default function DisplayInjuries() {
 
   const injuryItems = injuryData?.injuries.flatMap((injuryItem) => injuryItem?.injuries) || [];
   const playerInjuryItems = injuryItems?.map((injury, index) => {
-    const articleDate = injury?.details?.returnDate ?? "Unknown";
+    const injuryDate = injury?.details?.returnDate ?? "Unknown";
 
-    if (!articleDate) {
+    if (!injuryDate) {
       return null;
     }
 
@@ -27,7 +27,7 @@ export default function DisplayInjuries() {
       accessoryIcon = { source: Icon.MedicalSupport, tintColor: Color.Orange };
     }
 
-    if (injury.status === "Injured Reserve" || injury.status === "Questionable" || injury.status === "60-Day-IL") {
+    if (injury.status === "Injured Reserve" || injury.status === "Questionable" || injury.status.includes("Day-IL")) {
       tagColor = Color.Red;
       accessoryIcon = { source: Icon.MedicalSupport, tintColor: Color.Red };
     }
@@ -52,7 +52,7 @@ export default function DisplayInjuries() {
             tag: { value: injury?.status?.replace(/-/g, " "), color: tagColor },
             tooltip: "Status",
           },
-          { text: articleDate, tooltip: "Est. Return Date" },
+          { text: injuryDate, tooltip: "Est. Return Date" },
           { icon: accessoryIcon },
         ]}
         actions={
@@ -76,6 +76,14 @@ export default function DisplayInjuries() {
       />
     );
   });
+
+  if (injuryLoading) {
+    return <Detail isLoading={true} />;
+  }
+
+  if (!injuryData || playerInjuryItems.length === 0) {
+    return <List.EmptyView icon="Empty.png" title="No Results Found" />;
+  }
 
   return (
     <>

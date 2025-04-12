@@ -17,7 +17,7 @@ interface playByPlayData {
   };
   plays: Array<{
     type: { text: string };
-    period: { number: string };
+    period: { number: string; type: string };
     clock: { displayValue: string };
     team: { id: string };
     text: string;

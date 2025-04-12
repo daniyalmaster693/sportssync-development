@@ -9,7 +9,7 @@ const displaySchedule = () => {
 
   useEffect(() => {
     async function loadStoredDropdown() {
-      const storedValue = await LocalStorage.getItem("selectedDropdown");
+      const storedValue = await LocalStorage.getItem("soccerScoresDropdown");
 
       if (typeof storedValue === "string") {
         displaySelectLeague(storedValue);
@@ -26,13 +26,13 @@ const displaySchedule = () => {
 
   return (
     <List
-      searchBarPlaceholder="Search for your favorite team"
+      searchBarPlaceholder="Search for a game or team"
       searchBarAccessory={
         <List.Dropdown
           tooltip="Sort by"
           onChange={async (newValue) => {
             displaySelectLeague(newValue);
-            await LocalStorage.setItem("selectedDropdown", newValue);
+            await LocalStorage.setItem("soccerScoresDropdown", newValue);
           }}
           value={currentLeague}
           defaultValue="ENG.1"

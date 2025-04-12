@@ -34,7 +34,7 @@ interface Response {
   athletes: Athlete[];
 }
 
-export default function getTeamStandings() {
+export default function getTeamStandings({ teamId }: { teamId: string }) {
   const currentLeague = sportInfo.getLeague();
   const currentSport = sportInfo.getSport();
 
@@ -43,7 +43,7 @@ export default function getTeamStandings() {
     data: rosterData,
     revalidate: rosterRevalidate,
   } = useFetch<Response>(
-    `https://site.api.espn.com/apis/site/v2/sports/${currentSport}/${currentLeague}/teams/${gameId}/roster`,
+    `https://site.api.espn.com/apis/site/v2/sports/${currentSport}/${currentLeague}/teams/${teamId}/roster`,
   );
 
   return { rosterData, rosterLoading, rosterRevalidate };

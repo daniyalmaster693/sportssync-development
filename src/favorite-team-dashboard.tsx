@@ -1,4 +1,4 @@
-import { Detail, List, LocalStorage } from "@raycast/api";
+import { List, LocalStorage } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { useState, useEffect } from "react";
 import CompletedGames from "./views/favoriteTeamCompleted";
@@ -17,10 +17,10 @@ const favoriteLeague = preferences.league;
 const favoriteSport = preferences.sport;
 
 const Command = () => {
-  const [currentType, displaySelectType] = useState("NBA Games");
+  const [currentType, displaySelectType] = useState("Scheduled Games");
   useEffect(() => {
     async function loadStoredDropdown() {
-      const storedValue = await LocalStorage.getItem("selectedDropdown");
+      const storedValue = await LocalStorage.getItem("favoriteTeamDropdown");
 
       if (typeof storedValue === "string") {
         displaySelectType(storedValue);
@@ -32,39 +32,41 @@ const Command = () => {
     loadStoredDropdown();
   }, []);
 
-  const { isLoading: nhlScheduleStats, data: nhlScoresAndSchedule } = useFetch<Response>(
+  const { isLoading: scheduleLoading } = useFetch<Response>(
     `https://site.api.espn.com/apis/site/v2/sports/${favoriteSport}/${favoriteLeague}/teams/${favoriteTeam}/schedule`,
   );
 
-  if (!nhlScoresAndSchedule) {
-    return <Detail markdown="No data found." />;
+  let searchBarPlaceholder = "Search for a game";
+
+  if (currentType === "Scheduled Games" || currentType === "Completed Games") {
+    searchBarPlaceholder = "Search for a game or team";
+  }
+
+  if (currentType === "Tracker") {
+    searchBarPlaceholder = "Search for an article, player, or transaction";
   }
 
   return (
     <List
-      searchBarPlaceholder={`Search for a game`}
+      searchBarPlaceholder={searchBarPlaceholder}
       searchBarAccessory={
         <List.Dropdown
           tooltip="Sort by"
           onChange={async (newValue) => {
             displaySelectType(newValue);
-            await LocalStorage.setItem("selectedDropdown", newValue);
+            await LocalStorage.setItem("favoriteTeamDropdown", newValue);
           }}
           value={currentType}
           defaultValue="Scheduled Games"
         >
-          <List.Dropdown.Item title="Scheduled Games" value="Scheduled Games" />
+          {favoriteLeague !== "wnba" && <List.Dropdown.Item title="Scheduled Games" value="Scheduled Games" />}
           <List.Dropdown.Item title="Completed Games" value="Completed Games" />
-          <List.Dropdown.Item title="Tracker" value="Tracker" />
+          {favoriteSport !== "soccer" && <List.Dropdown.Item title="Tracker" value="Tracker" />}
         </List.Dropdown>
       }
-      isLoading={nhlScheduleStats}
+      isLoading={scheduleLoading}
     >
-      {currentType === "Scheduled Games" && (
-        <>
-          <ScheduledGames />
-        </>
-      )}
+      {currentType === "Scheduled Games" && favoriteLeague !== "wnba" && <ScheduledGames />}
 
       {currentType === "Completed Games" && (
         <>
@@ -72,11 +74,7 @@ const Command = () => {
         </>
       )}
 
-      {currentType === "Tracker" && (
-        <>
-          <TeamInjuries />
-        </>
-      )}
+      {currentType === "Tracker" && favoriteSport !== "soccer" && <TeamInjuries />}
     </List>
   );
 };

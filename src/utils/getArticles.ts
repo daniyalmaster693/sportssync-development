@@ -2,6 +2,7 @@ import { useFetch } from "@raycast/utils";
 import sportInfo from "./getSportInfo";
 
 interface Article {
+  id: string;
   headline: string;
   published: string;
   byline?: string;
@@ -23,7 +24,9 @@ export default function getArticles() {
     isLoading: articleLoading,
     data: articleData,
     revalidate: articleRevalidate,
-  } = useFetch<ArticlesResponse>(`https://site.api.espn.com/apis/site/v2/sports/${currentSport}/${currentLeague}/news`);
+  } = useFetch<ArticlesResponse>(
+    `https://site.api.espn.com/apis/site/v2/sports/${currentSport}/${currentLeague}/news?limit=50`,
+  );
 
   return { articleData, articleLoading, articleRevalidate };
 }

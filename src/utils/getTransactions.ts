@@ -1,25 +1,6 @@
 import { useFetch } from "@raycast/utils";
 import sportInfo from "./getSportInfo";
 
-interface Athlete {
-  displayName: string;
-  position: { displayName: string };
-  team: Team;
-  links: { href: string }[];
-}
-
-interface Injury {
-  injuries: any;
-  athlete: Athlete;
-  status: string;
-  details?: { returnDate: string };
-}
-
-interface Response {
-  season: { displayName: string };
-  injuries: Injury[];
-}
-
 interface Team {
   logos: { href: string }[];
   links: { href: string }[];
@@ -30,11 +11,6 @@ interface NHLTransaction {
   date: string;
   description: string;
   team: Team;
-}
-
-interface DayItems {
-  title: string;
-  transactions: JSX.Element[];
 }
 
 interface Response {

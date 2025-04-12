@@ -9,7 +9,7 @@ const displaySchedule = () => {
   const { scheduleLoading } = getScoresAndSchedule();
 
   return (
-    <List searchBarPlaceholder="Search for your favorite team" isLoading={scheduleLoading}>
+    <List searchBarPlaceholder="Search for a game or team" isLoading={scheduleLoading}>
       <DisplayScoresAndSchedule />
     </List>
   );

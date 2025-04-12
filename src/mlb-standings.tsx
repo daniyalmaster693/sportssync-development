@@ -9,7 +9,7 @@ const displaySchedule = () => {
   const { standingsLoading } = getTeamStandings();
 
   return (
-    <List searchBarPlaceholder="Search for your favorite team" isLoading={standingsLoading}>
+    <List searchBarPlaceholder="Search for a team" isLoading={standingsLoading}>
       <DisplayTeamStandings />
     </List>
   );

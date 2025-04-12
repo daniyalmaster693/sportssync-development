@@ -3,7 +3,7 @@ import sportInfo from "./utils/getSportInfo";
 import getArticles from "./utils/getArticles";
 import DisplayNews from "./templates/news";
 
-sportInfo.setSportAndLeague("racing", "f1");
+sportInfo.setSportAndLeague("soccer", "ENG.1");
 
 const displaySchedule = () => {
   const { articleLoading } = getArticles();
