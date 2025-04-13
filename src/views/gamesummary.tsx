@@ -2,6 +2,7 @@ import { Detail, Icon, Action, ActionPanel } from "@raycast/api";
 import sportInfo from "../utils/getSportInfo";
 import getGameSummary from "../utils/getGameSummary";
 import Plays from "./playbyplay";
+import TeamDetail from "../views/teamDetail";
 
 interface Play {
   type: {
@@ -58,15 +59,17 @@ export default function GameSummary({ gameId }: { gameId: string }) {
 
   // Away Team
 
+  const awayTeamFull = game?.header.competitions?.[0].competitors?.[1]?.team.displayName;
   const awayTeamShort = game?.header.competitions?.[0].competitors?.[1]?.team.abbreviation;
   const awayTeamLogo = game?.boxscore.teams?.[0]?.team.logo;
-  const awayTeamId = game?.boxscore.teams?.[0]?.team.id;
+  const awayTeamId = game?.boxscore.teams?.[0]?.team.id ?? "";
 
   // Home Team
 
+  const homeTeamFull = game?.header.competitions?.[0].competitors?.[0]?.team.displayName;
   const homeTeamShort = game?.header.competitions?.[0].competitors?.[0]?.team.abbreviation;
   const homeTeamLogo = game?.boxscore.teams?.[1]?.team.logo;
-  const homeTeamId = game?.boxscore.teams?.[1]?.team.id;
+  const homeTeamId = game?.boxscore.teams?.[1]?.team.id ?? "";
 
   // Scoring Summary
 
@@ -206,19 +209,20 @@ export default function GameSummary({ gameId }: { gameId: string }) {
       actions={
         <ActionPanel>
           <Action.Push title="View Play by Play" icon={Icon.Sidebar} target={<Plays gameId={gameId} />} />
-          <Action.OpenInBrowser
-            title="View Game Details on ESPN"
-            url={`${summaryData?.header.links[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
-          />
-          <Action.OpenInBrowser
-            title="View Away Team Details"
-            url={`${summaryData?.header.competitions?.[0].competitors?.[1].team.links[0].href ?? `https://www.espn.com/${currentLeague}`}`}
-          />
-
-          <Action.OpenInBrowser
-            title="View Home Team Details"
-            url={`${summaryData?.header.competitions?.[0].competitors?.[0].team.links[0].href ?? `https://www.espn.com/${currentLeague}`}`}
-          />
+          {currentLeague !== "f1" && (
+            <>
+              <Action.Push
+                title={`View ${awayTeamFull ?? "Away"} Team Details`}
+                icon={Icon.Sidebar}
+                target={<TeamDetail teamId={awayTeamId} />}
+              />
+              <Action.Push
+                title={`View ${homeTeamFull ?? "Home"} Team Details`}
+                icon={Icon.Sidebar}
+                target={<TeamDetail teamId={homeTeamId} />}
+              />
+            </>
+          )}
           <Action
             title="Refresh"
             icon={Icon.ArrowClockwise}

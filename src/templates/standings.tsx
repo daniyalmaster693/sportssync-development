@@ -3,6 +3,7 @@ import getTeamStandings from "../utils/getStandings";
 import sportInfo from "../utils/getSportInfo";
 import RosterDetail from "../views/roster";
 import TeamSchedule from "../views/teamSchedule";
+import TeamDetail from "../views/teamDetail";
 
 export default function DisplayTeamStandings() {
   const { standingsLoading, standingsData, standingsRevalidate } = getTeamStandings();
@@ -256,23 +257,21 @@ export default function DisplayTeamStandings() {
             {currentLeague !== "f1" && (
               <>
                 <Action.Push
-                  title="View Roster"
+                  title={`View ${team1?.team?.displayName ?? "Team"} Details`}
+                  icon={Icon.Sidebar}
+                  target={<TeamDetail teamId={team1?.team?.id} />}
+                />
+                <Action.Push
+                  title={`View ${team1?.team?.displayName ?? "Team"} Roster`}
                   icon={Icon.Sidebar}
                   target={<RosterDetail teamId={team1?.team?.id} />}
                 />
                 <Action.Push
-                  title="View Team Schedule"
+                  title={`View ${team1?.team?.displayName ?? "Team"} Schedule`}
                   icon={Icon.Sidebar}
                   target={<TeamSchedule teamId={team1?.team?.id} />}
                 />
               </>
-            )}
-
-            {currentLeague !== "f1" && (
-              <Action.OpenInBrowser
-                title={`View ${team1?.team?.displayName ?? "Team"} Details on ESPN`}
-                url={`${team1?.team?.links?.[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
-              />
             )}
 
             {currentLeague === "f1" && (

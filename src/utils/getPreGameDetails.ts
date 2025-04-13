@@ -40,6 +40,7 @@ interface Team {
   displayName: string;
   logo: string;
   links?: { href: string }[];
+  id: string;
 }
 
 interface Competitor {

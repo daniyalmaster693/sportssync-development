@@ -12,7 +12,7 @@ interface playByPlayData {
   header: GameHeader;
   boxscore: {
     teams: {
-      team: { id: string; logo: string };
+      team: { id: string; logo: string; displayName: string };
     }[];
   };
   plays: Array<{

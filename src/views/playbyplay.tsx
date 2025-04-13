@@ -2,6 +2,7 @@ import { Detail, List, Color, Icon, Action, ActionPanel, LocalStorage } from "@r
 import { useState, useEffect } from "react";
 import getPlayByPlayEvents from "../utils/getPlaybyPlay";
 import sportInfo from "../utils/getSportInfo";
+import TeamDetail from "../views/teamDetail";
 
 export default function Plays({ gameId }: { gameId: string }) {
   const { playByPlayEventData, playByPlayLoading, playByPlayRevalidate } = getPlayByPlayEvents({ gameId });
@@ -45,10 +46,12 @@ export default function Plays({ gameId }: { gameId: string }) {
   const events = playByPlayEventData?.plays || [];
   const playByPlayEvents: JSX.Element[] = [];
 
-  const awayTeamId = playByPlayEventData?.boxscore?.teams?.[0]?.team?.id;
+  const awayTeamFull = playByPlayEventData?.boxscore?.teams?.[0]?.team?.displayName;
+  const awayTeamId = playByPlayEventData?.boxscore?.teams?.[0]?.team?.id ?? "";
   const awayTeamLogo = playByPlayEventData?.boxscore?.teams?.[0]?.team.logo;
 
-  const homeTeamId = playByPlayEventData?.boxscore?.teams?.[1]?.team?.id;
+  const homeTeamFull = playByPlayEventData?.boxscore?.teams?.[1]?.team?.displayName;
+  const homeTeamId = playByPlayEventData?.boxscore?.teams?.[1]?.team?.id ?? "";
   const homeTeamLogo = playByPlayEventData?.boxscore?.teams?.[1]?.team.logo;
 
   const leagueLogo = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/${currentLeague}.png&w=100&h=100&transparent=true`;
@@ -221,19 +224,20 @@ export default function Plays({ gameId }: { gameId: string }) {
               onAction={playByPlayRevalidate}
               shortcut={{ modifiers: ["cmd"], key: "r" }}
             />
-            <Action.OpenInBrowser
-              title="View Game Details on ESPN"
-              url={`${playByPlayEventData?.header.links[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
-            />
-            <Action.OpenInBrowser
-              title="View Away Team Details"
-              url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[1].team.links[0].href ?? `https://www.espn.com/${currentLeague}`}`}
-            />
-
-            <Action.OpenInBrowser
-              title="View Home Team Details"
-              url={`${playByPlayEventData?.header.competitions?.[0].competitors?.[0].team.links[0].href ?? `https://www.espn.com/${currentLeague}`}`}
-            />
+            {currentLeague !== "f1" && (
+              <>
+                <Action.Push
+                  title={`View ${awayTeamFull ?? "Away"} Team Details`}
+                  icon={Icon.Sidebar}
+                  target={<TeamDetail teamId={awayTeamId} />}
+                />
+                <Action.Push
+                  title={`View ${homeTeamFull ?? "Home"} Team Details`}
+                  icon={Icon.Sidebar}
+                  target={<TeamDetail teamId={homeTeamId} />}
+                />
+              </>
+            )}
           </ActionPanel>
         }
       />,

@@ -103,7 +103,7 @@ export default function RosterDetail({ teamId }: { teamId: string }) {
         actions={
           <ActionPanel>
             <Action.OpenInBrowser
-              title="View Player Details"
+              title={`View ${name}'s Profile on ESPN`}
               url={athlete?.links?.[0]?.href ?? `https://www.espn.com/${currentLeague}`}
             />
           </ActionPanel>

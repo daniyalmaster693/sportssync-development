@@ -5,6 +5,7 @@ import getCountryCode from "../utils/getF1RaceFlag";
 import PreGame from "../views/preGame";
 import Plays from "../views/playbyplay";
 import GameSummary from "../views/gameSummary";
+import TeamDetail from "../views/teamDetail";
 
 interface DayItems {
   title: string;
@@ -186,6 +187,21 @@ export default function DisplayScoresAndSchedule() {
               </>
             )}
 
+            {currentLeague !== "f1" && (
+              <>
+                <Action.Push
+                  title={`View ${game?.competitions?.[0]?.competitors?.[1]?.team?.displayName ?? "Away"} Team Details`}
+                  icon={Icon.Sidebar}
+                  target={<TeamDetail teamId={game?.competitions?.[0]?.competitors?.[1]?.team?.id ?? ""} />}
+                />
+                <Action.Push
+                  title={`View ${game?.competitions?.[0]?.competitors?.[0]?.team?.displayName ?? "Home"} Team Details`}
+                  icon={Icon.Sidebar}
+                  target={<TeamDetail teamId={game?.competitions?.[0]?.competitors?.[0]?.team?.id ?? ""} />}
+                />
+              </>
+            )}
+
             <Action
               title="Refresh"
               icon={Icon.ArrowClockwise}
@@ -193,46 +209,15 @@ export default function DisplayScoresAndSchedule() {
               shortcut={{ modifiers: ["cmd"], key: "r" }}
             />
 
-            {currentLeague !== "f1" ? (
-              <>
-                {game?.status?.type?.state === "post" && (
-                  <>
-                    <Action.OpenInBrowser
-                      title="View Game Recap on ESPN"
-                      url={`${game?.links?.[4]?.href ?? `https://www.espn.com/${currentLeague}`}`}
-                    />
-                  </>
-                )}
-
-                {game?.competitions?.[0]?.competitors?.[1]?.team.links?.length > 0 && (
-                  <Action.OpenInBrowser
-                    title={`View ${game?.competitions?.[0]?.competitors?.[1]?.team?.displayName ?? "Away"} Team Details`}
-                    url={
-                      game?.competitions?.[0]?.competitors?.[1]?.team?.links?.[0]?.href ??
-                      `https://www.espn.com/${currentLeague}`
-                    }
-                  />
-                )}
-
-                {game.competitions?.[0]?.competitors?.[0]?.team?.links?.length > 0 && (
-                  <Action.OpenInBrowser
-                    title={`View ${game?.competitions?.[0]?.competitors?.[0]?.team?.displayName ?? "Home"} Team Details`}
-                    url={
-                      game?.competitions?.[0]?.competitors?.[0]?.team?.links?.[0]?.href ??
-                      `https://www.espn.com/${currentLeague}`
-                    }
-                  />
-                )}
-              </>
-            ) : (
+            {currentLeague === "f1" && (
               <>
                 <Action.OpenInBrowser
                   title="View Race Details on ESPN"
-                  url={`${game?.links?.[0].href ?? `https://www.espn.com/${currentLeague}`}`}
+                  url={`${game?.links?.[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
                 />
                 <Action.OpenInBrowser
                   title="View Circuit Details on ESPN"
-                  url={`${game?.links?.[2].href ?? `https://www.espn.com/${currentLeague}`}`}
+                  url={`${game?.links?.[2]?.href ?? `https://www.espn.com/${currentLeague}`}`}
                 />
               </>
             )}

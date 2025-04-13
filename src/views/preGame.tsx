@@ -1,6 +1,7 @@
 import { Detail, Color, Icon, Action, ActionPanel } from "@raycast/api";
 import sportInfo from "../utils/getSportInfo";
 import getPreGameDetails from "../utils/getPreGameDetails";
+import TeamDetail from "../views/teamDetail";
 
 export default function PreGame({ gameId }: { gameId: string }) {
   // Fetch Info
@@ -223,25 +224,20 @@ ${awayTeamInjuriesFormatted || "No injuries reported."}
       }
       actions={
         <ActionPanel>
-          <Action.OpenInBrowser
-            title="View Game Details on ESPN"
-            url={`${preGameData?.header?.links[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
-          />
-          <Action.OpenInBrowser
-            title="View Away Team Details"
-            url={
-              preGameData?.header?.competitions?.[0]?.competitors?.[1]?.team?.links?.[0]?.href ??
-              `https://www.espn.com/${currentLeague}`
-            }
-          />
-
-          <Action.OpenInBrowser
-            title="View Home Team Details"
-            url={
-              preGameData?.header?.competitions?.[0]?.competitors?.[0]?.team?.links?.[0]?.href ??
-              `https://www.espn.com/${currentLeague}`
-            }
-          />
+          {currentLeague !== "f1" && (
+            <>
+              <Action.Push
+                title={`View ${awayTeamFull ?? "Away"} Team Details`}
+                icon={Icon.Sidebar}
+                target={<TeamDetail teamId={game?.header?.competitions?.[0]?.competitors?.[1]?.team?.id ?? ""} />}
+              />
+              <Action.Push
+                title={`View ${homeTeamFull ?? "Home"} Team Details`}
+                icon={Icon.Sidebar}
+                target={<TeamDetail teamId={game?.header?.competitions?.[0]?.competitors?.[0]?.team?.id ?? ""} />}
+              />
+            </>
+          )}
           <Action
             title="Refresh"
             icon={Icon.ArrowClockwise}
