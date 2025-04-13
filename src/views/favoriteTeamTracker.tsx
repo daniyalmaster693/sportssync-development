@@ -1,7 +1,6 @@
 import { Detail, List, Color, Icon, Action, ActionPanel } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { getPreferenceValues } from "@raycast/api";
-import ArticleDetail from "../views/articleDetail";
 
 interface Article {
   id: string;
@@ -402,7 +401,6 @@ export default function TeamInjuries() {
           ]}
           actions={
             <ActionPanel>
-              <Action.Push title="View Article" icon={Icon.Book} target={<ArticleDetail articleId={article.id} />} />
               <Action.OpenInBrowser
                 title="View Article on ESPN"
                 url={`${article?.links?.web?.href ?? `https://www.espn.com/${favoriteLeague}`}`}
