@@ -2,6 +2,7 @@ import { Detail, List, Color, Icon, Action, ActionPanel } from "@raycast/api";
 import getTeamStandings from "../utils/getStandings";
 import sportInfo from "../utils/getSportInfo";
 import RosterDetail from "../views/roster";
+import TeamSchedule from "../views/teamSchedule";
 
 export default function DisplayTeamStandings() {
   const { standingsLoading, standingsData, standingsRevalidate } = getTeamStandings();
@@ -253,7 +254,18 @@ export default function DisplayTeamStandings() {
         actions={
           <ActionPanel>
             {currentLeague !== "f1" && (
-              <Action.Push title="View Roster" icon={Icon.Sidebar} target={<RosterDetail teamId={team1?.team?.id} />} />
+              <>
+                <Action.Push
+                  title="View Roster"
+                  icon={Icon.Sidebar}
+                  target={<RosterDetail teamId={team1?.team?.id} />}
+                />
+                <Action.Push
+                  title="View Team Schedule"
+                  icon={Icon.Sidebar}
+                  target={<TeamSchedule teamId={team1?.team?.id} />}
+                />
+              </>
             )}
 
             {currentLeague !== "f1" && (

@@ -195,11 +195,6 @@ export default function DisplayScoresAndSchedule() {
 
             {currentLeague !== "f1" ? (
               <>
-                <Action.OpenInBrowser
-                  title="View Game Details on ESPN"
-                  url={`${game?.links?.[0]?.href ?? `https://www.espn.com/${currentLeague}`}`}
-                />
-
                 {game?.status?.type?.state === "post" && (
                   <>
                     <Action.OpenInBrowser

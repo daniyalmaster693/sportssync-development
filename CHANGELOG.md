@@ -1,5 +1,14 @@
 # Sportssync Changelog
 
+## [New Major Features] - {PR_MERGE_DATE}
+
+- Created an article content view for the news view for all tracker commands. - View articles directly from raycast without opening ESPN.
+- Created a roster view for all standings commands (except for f1). - View all players and the head coach for the team, with details about experience, height, weight, and jersey numbers.
+- Created a play by play view for live and completed games for all scores and schedule commands. - View play by play events with time stamps during live games and after games complete. You can also see major events highlighted such as goals, saves, fights (varies based on the league).
+- Created a pre game view for all scores and schedule commands. View different team and game details before a game begins.
+- Created a post game view for all scores and schedule commands. View different post game information such as a scoring summary, team stats, and game stars (varies based on the league).
+- Added a new post game recap action for completed games.
+
 ## [New Commands, Views, and Small Features] - {PR_MERGE_DATE}
 
 - Created a Live Scores Menubar Command - View live scores, final scores, and games. Clicking on games will set them as the menubar title. (Must set a favorite sport and league for it to work)
