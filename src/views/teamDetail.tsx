@@ -132,12 +132,12 @@ export default function TeamDetail({ teamId }: { teamId: string }) {
             <>
               <Action.Push
                 title={`View ${teamName} Roster`}
-                icon={Icon.Sidebar}
+                icon={Icon.TwoPeople}
                 target={<RosterDetail teamId={teamId} />}
               />
               <Action.Push
                 title={`View ${teamName} Schedule`}
-                icon={Icon.Sidebar}
+                icon={Icon.Calendar}
                 target={<TeamSchedule teamId={teamId} />}
               />
             </>

@@ -258,17 +258,17 @@ export default function DisplayTeamStandings() {
               <>
                 <Action.Push
                   title={`View ${team1?.team?.displayName ?? "Team"} Details`}
-                  icon={Icon.Sidebar}
+                  icon={Icon.List}
                   target={<TeamDetail teamId={team1?.team?.id} />}
                 />
                 <Action.Push
                   title={`View ${team1?.team?.displayName ?? "Team"} Roster`}
-                  icon={Icon.Sidebar}
+                  icon={Icon.TwoPeople}
                   target={<RosterDetail teamId={team1?.team?.id} />}
                 />
                 <Action.Push
                   title={`View ${team1?.team?.displayName ?? "Team"} Schedule`}
-                  icon={Icon.Sidebar}
+                  icon={Icon.Calendar}
                   target={<TeamSchedule teamId={team1?.team?.id} />}
                 />
               </>

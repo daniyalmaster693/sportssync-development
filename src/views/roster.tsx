@@ -106,6 +106,12 @@ export default function RosterDetail({ teamId }: { teamId: string }) {
               title={`View ${name}'s Profile on ESPN`}
               url={athlete?.links?.[0]?.href ?? `https://www.espn.com/${currentLeague}`}
             />
+            <Action
+              title="Refresh"
+              icon={Icon.ArrowClockwise}
+              onAction={rosterRevalidate}
+              shortcut={{ modifiers: ["cmd"], key: "r" }}
+            />
           </ActionPanel>
         }
       />

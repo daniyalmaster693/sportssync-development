@@ -45,7 +45,7 @@ export default function DisplayTransactions() {
           <ActionPanel>
             <Action.Push
               title={`View ${transaction?.team?.displayName ?? "Team"} Details`}
-              icon={Icon.Sidebar}
+              icon={Icon.List}
               target={<TeamDetail teamId={transaction?.team?.id ?? ""} />}
             />
             <Action

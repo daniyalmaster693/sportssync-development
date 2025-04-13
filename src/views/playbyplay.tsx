@@ -228,12 +228,12 @@ export default function Plays({ gameId }: { gameId: string }) {
               <>
                 <Action.Push
                   title={`View ${awayTeamFull ?? "Away"} Team Details`}
-                  icon={Icon.Sidebar}
+                  icon={Icon.List}
                   target={<TeamDetail teamId={awayTeamId} />}
                 />
                 <Action.Push
                   title={`View ${homeTeamFull ?? "Home"} Team Details`}
-                  icon={Icon.Sidebar}
+                  icon={Icon.List}
                   target={<TeamDetail teamId={homeTeamId} />}
                 />
               </>

@@ -208,17 +208,17 @@ export default function GameSummary({ gameId }: { gameId: string }) {
       markdown={`${gameTitle} &nbsp; ${scoringSummary} &nbsp; ${stars} &nbsp; ${teamStatistics}`}
       actions={
         <ActionPanel>
-          <Action.Push title="View Play by Play" icon={Icon.Sidebar} target={<Plays gameId={gameId} />} />
+          <Action.Push title="View Play by Play" icon={Icon.Stopwatch} target={<Plays gameId={gameId} />} />
           {currentLeague !== "f1" && (
             <>
               <Action.Push
                 title={`View ${awayTeamFull ?? "Away"} Team Details`}
-                icon={Icon.Sidebar}
+                icon={Icon.List}
                 target={<TeamDetail teamId={awayTeamId} />}
               />
               <Action.Push
                 title={`View ${homeTeamFull ?? "Home"} Team Details`}
-                icon={Icon.Sidebar}
+                icon={Icon.List}
                 target={<TeamDetail teamId={homeTeamId} />}
               />
             </>

@@ -228,12 +228,12 @@ ${awayTeamInjuriesFormatted || "No injuries reported."}
             <>
               <Action.Push
                 title={`View ${awayTeamFull ?? "Away"} Team Details`}
-                icon={Icon.Sidebar}
+                icon={Icon.List}
                 target={<TeamDetail teamId={game?.header?.competitions?.[0]?.competitors?.[1]?.team?.id ?? ""} />}
               />
               <Action.Push
                 title={`View ${homeTeamFull ?? "Home"} Team Details`}
-                icon={Icon.Sidebar}
+                icon={Icon.List}
                 target={<TeamDetail teamId={game?.header?.competitions?.[0]?.competitors?.[0]?.team?.id ?? ""} />}
               />
             </>

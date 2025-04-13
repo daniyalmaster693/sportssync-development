@@ -64,7 +64,7 @@ export default function DisplayInjuries() {
             />
             <Action.Push
               title={`View ${injury?.athlete?.team?.displayName ?? "Team"} Details`}
-              icon={Icon.Sidebar}
+              icon={Icon.List}
               target={<TeamDetail teamId={injury?.athlete?.team?.id ?? ""} />}
             />
             <Action

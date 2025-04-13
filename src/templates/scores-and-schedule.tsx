@@ -173,17 +173,21 @@ export default function DisplayScoresAndSchedule() {
         actions={
           <ActionPanel>
             {currentLeague !== "f1" && currentSport !== "soccer" && game?.status?.type?.state === "pre" && (
-              <Action.Push title="View Game Details" icon={Icon.Sidebar} target={<PreGame gameId={game.id} />} />
+              <Action.Push title="View Game Details" icon={Icon.Building} target={<PreGame gameId={game.id} />} />
             )}
 
             {currentLeague !== "f1" && currentSport !== "soccer" && game?.status?.type?.state === "in" && (
-              <Action.Push title="View Play by Play" icon={Icon.Sidebar} target={<Plays gameId={game.id} />} />
+              <Action.Push title="View Play by Play" icon={Icon.Stopwatch} target={<Plays gameId={game.id} />} />
             )}
 
             {currentLeague !== "f1" && currentSport !== "soccer" && game?.status?.type?.state === "post" && (
               <>
-                <Action.Push title="View Game Summary" icon={Icon.Sidebar} target={<GameSummary gameId={game.id} />} />
-                <Action.Push title="View Play by Play" icon={Icon.Sidebar} target={<Plays gameId={game.id} />} />
+                <Action.Push
+                  title="View Game Summary"
+                  icon={Icon.LineChart}
+                  target={<GameSummary gameId={game.id} />}
+                />
+                <Action.Push title="View Play by Play" icon={Icon.Stopwatch} target={<Plays gameId={game.id} />} />
               </>
             )}
 
@@ -191,12 +195,12 @@ export default function DisplayScoresAndSchedule() {
               <>
                 <Action.Push
                   title={`View ${game?.competitions?.[0]?.competitors?.[1]?.team?.displayName ?? "Away"} Team Details`}
-                  icon={Icon.Sidebar}
+                  icon={Icon.List}
                   target={<TeamDetail teamId={game?.competitions?.[0]?.competitors?.[1]?.team?.id ?? ""} />}
                 />
                 <Action.Push
                   title={`View ${game?.competitions?.[0]?.competitors?.[0]?.team?.displayName ?? "Home"} Team Details`}
-                  icon={Icon.Sidebar}
+                  icon={Icon.List}
                   target={<TeamDetail teamId={game?.competitions?.[0]?.competitors?.[0]?.team?.id ?? ""} />}
                 />
               </>
